@@ -12,18 +12,30 @@ import java.io.File;
 import java.io.IOException;
 
 public class Main {
-	public static void main(String args[]) throws CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
+	public static void main(String args[]) throws TagException, CannotWriteException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException {
 		
-		File testFile = new File("C:\\Users\\vit20\\Documents\\test\\The Offspring - Nothingtown.flac");	// Загрузка файла
+		File folder = new File("C:\\Users\\vit20\\Documents\\test");	// Директория с файлами
+		File files[] = folder.listFiles();										// Массив с файлами из директории
 		
-		AudioFile f = AudioFileIO.read(testFile);		// Чтение аудиофайла
-		Tag tag = f.getTag();							// Получение тегов
+		for (File file : files) {
+			if (file.isFile()) {
+				System.out.printf("File name:\n%s\n", file.getName());
+				
+				AudioFile audioFile = AudioFileIO.read(file);			// Чтение аудиофайла
+				Tag tag = audioFile.getTag();							// Получение тега
+				
+				System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
+			}
+		}
 		
-		System.out.printf("%s\n", tag.getFirst(FieldKey.GENRE));
-		
-		tag.setField(FieldKey.GENRE, "Punk-rock");	// Изменение тега
-		f.commit();										// Подтверждение изменения
-		
-		System.out.printf("%s\n", tag.getFirst(FieldKey.GENRE));
+//		AudioFile f = AudioFileIO.read(testFile);		// Чтение аудиофайла
+//		Tag tag = f.getTag();							// Получение тегов
+//
+//		System.out.printf("%s\n", tag.getFirst(FieldKey.GENRE));
+//
+//		tag.setField(FieldKey.GENRE, "Punk-rock");	// Изменение тега
+//		f.commit();										// Подтверждение изменения
+//
+//		System.out.printf("%s\n", tag.getFirst(FieldKey.GENRE));
 	}
 }
