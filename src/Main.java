@@ -10,12 +10,25 @@ import org.jaudiotagger.tag.TagException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Scanner;
+import java.util.logging.LogManager;
 
 public class Main {
 	public static void main(String args[]) throws TagException, CannotWriteException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException {
+		LogManager.getLogManager().reset();	// Отключение логов
 		
-		File folder = new File("C:\\Users\\vit20\\Documents\\test");	// Директория с файлами
-		File files[] = folder.listFiles();										// Массив с файлами из директории
+		Scanner terminalInput = new Scanner(System.in);
+		
+		System.out.printf("Type directory path: ");
+		String directoryPath = terminalInput.nextLine();	// Ввод директории
+		
+		//System.out.printf("Path is %s\n", directoryPath);
+		
+		String directoryArray[] = directoryPath.split("/");
+		StringBuilder
+
+		File directory = new File("C:\\Users\\vit20\\Documents\\test");	// Директория с файлами
+		File files[] = directory.listFiles();										// Массив с файлами из директории
 		
 		for (File file : files) {
 			if (file.isFile()) {
@@ -27,7 +40,9 @@ public class Main {
 				System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
 			}
 		}
-		
+
+
+
 //		AudioFile f = AudioFileIO.read(testFile);		// Чтение аудиофайла
 //		Tag tag = f.getTag();							// Получение тегов
 //
