@@ -17,18 +17,15 @@ public class Main {
 	public static void main(String args[]) throws TagException, CannotWriteException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException {
 		LogManager.getLogManager().reset();	// Отключение логов
 		
-		Scanner terminalInput = new Scanner(System.in);
+		Scanner terminalInput = new Scanner(System.in);		// Входной поток из терминала
 		
 		System.out.printf("Type directory path: ");
 		String directoryPath = terminalInput.nextLine();	// Ввод директории
 		
-		//System.out.printf("Path is %s\n", directoryPath);
-		
-		String directoryArray[] = directoryPath.split("/");
-		StringBuilder
 
-		File directory = new File("C:\\Users\\vit20\\Documents\\test");	// Директория с файлами
-		File files[] = directory.listFiles();										// Массив с файлами из директории
+		//File directory = new File("C:\\Users\\vit20\\Documents\\test");	// Директория с файлами
+		File directory = new File(directoryPath);							// Директория с файлами
+		File files[] = directory.listFiles();								// Массив с файлами из директории
 		
 		for (File file : files) {
 			if (file.isFile()) {
