@@ -10,6 +10,7 @@ import org.jaudiotagger.tag.TagException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.LogManager;
 
@@ -28,17 +29,15 @@ public class Main {
 		File files[] = directory.listFiles();								// Files array from directory
 		
 		ArrayList<String> initialGenres = new ArrayList<>();
+		ArrayList<String> changedGenres = new ArrayList<>();
 		
-		
+		// Filling initialGenres ArrayList
 		assert files != null;	// If files contain null
 		for (File file : files) {
 			if (file.isFile()) {
-				
-				//System.out.printf("File name:\n%s\n", file.getName());
-				
 				AudioFile audioFile = AudioFileIO.read(file);
 				Tag tag = audioFile.getTag();
-				
+				//System.out.printf("File name:\n%s\n", file.getName());
 				//System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
 				
 				// Add unique genres to ArrayList of initial genres
@@ -48,9 +47,25 @@ public class Main {
 			}
 		}
 		
-		System.out.printf(initialGenres.toString());
+		System.out.printf("%s\n", initialGenres);
 
-
+		// Change initial genres to another genres
+		for (String initialGenre : initialGenres) {
+			System.out.printf("What genre do you want to replace %s with? Type 0 if you don't want to replace genre.\n", initialGenre);
+			String changedGenre = terminalInput.nextLine();
+			
+			if (Objects.equals(changedGenre, "0")) {	// If user don't want to change genre keep this genre
+				changedGenres.add(initialGenre);
+			} else {
+				changedGenres.add(changedGenre);
+			}
+		}
+		
+		System.out.printf("%s\n", changedGenres);
+		
+		
+		
+		
 		////////////// CHANGE TAG EXAMPLE //////////////
 //		AudioFile f = AudioFileIO.read(testFile);
 //		Tag tag = f.getTag();
