@@ -1,1 +1,1 @@
-Редактор тегов аудиофайлов. В процессе разработки
+Audiofile tag redactor. Work in progress.
