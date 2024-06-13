@@ -1,6 +1,7 @@
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
@@ -15,7 +16,7 @@ import java.util.Scanner;
 import java.util.logging.LogManager;
 
 public class Main {
-	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException {
+	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
 		
 		LogManager.getLogManager().reset();	// Disable log
 		
@@ -37,8 +38,6 @@ public class Main {
 			if (file.isFile()) {
 				AudioFile audioFile = AudioFileIO.read(file);
 				Tag tag = audioFile.getTag();
-				//System.out.printf("File name:\n%s\n", file.getName());
-				//System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
 				
 				// Add unique genres to ArrayList of initial genres
 				if (!initialGenres.contains(tag.getFirst(FieldKey.GENRE))) {
@@ -63,18 +62,22 @@ public class Main {
 		
 		System.out.printf("%s\n", changedGenres);
 		
-		
-		
-		
-		////////////// CHANGE TAG EXAMPLE //////////////
-//		AudioFile f = AudioFileIO.read(testFile);
-//		Tag tag = f.getTag();
-//
-//		System.out.printf("%s\n", tag.getFirst(FieldKey.GENRE));
-//
-//		tag.setField(FieldKey.GENRE, "Punk-rock");		// Change tag
-//		f.commit();										// Confirm changes
-//
-//		System.out.printf("%s\n", tag.getFirst(FieldKey.GENRE));
+		for (File file : files) {
+			if (file.isFile()) {
+				AudioFile audioFile = AudioFileIO.read(file);
+				Tag tag = audioFile.getTag();
+				
+				for (int i = 0; i < initialGenres.size(); i++) {								// Go through genres
+					if (Objects.equals(tag.getFirst(FieldKey.GENRE), initialGenres.get(i))) {	// If the genre of the audio file is equal to initial genre
+						tag.setField(FieldKey.GENRE, changedGenres.get(i));						// Then change the genre of the audio file to the new genre
+						audioFile.commit();														// Apply change
+					}
+				}
+				
+				// Print changed genres
+				//System.out.printf("File name:\n%s\n", file.getName());
+				//System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
+			}
+		}
 	}
 }
