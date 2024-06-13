@@ -9,36 +9,49 @@ import org.jaudiotagger.tag.TagException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.LogManager;
 
 public class Main {
 	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException {
+		
 		LogManager.getLogManager().reset();	// Disable log
 		
-		Scanner terminalInput = new Scanner(System.in);		// Input from terminal
+		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
 		
-		System.out.printf("Type directory path: ");
-		String directoryPath = terminalInput.nextLine();	// Input directory path
+		System.out.print("Type directory path: ");
+		String directoryPath = terminalInput.nextLine();					// Input directory path
 		
-
 		//File directory = new File("C:\\Users\\vit20\\Documents\\test");	// Directory with files
 		File directory = new File(directoryPath);							// Directory with files
 		File files[] = directory.listFiles();								// Files array from directory
 		
+		ArrayList<String> initialGenres = new ArrayList<>();
+		
+		
+		assert files != null;	// If files contain null
 		for (File file : files) {
 			if (file.isFile()) {
-				System.out.printf("File name:\n%s\n", file.getName());
+				
+				//System.out.printf("File name:\n%s\n", file.getName());
 				
 				AudioFile audioFile = AudioFileIO.read(file);
 				Tag tag = audioFile.getTag();
 				
-				System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
+				//System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
+				
+				// Add unique genres to ArrayList of initial genres
+				if (!initialGenres.contains(tag.getFirst(FieldKey.GENRE))) {
+					initialGenres.add(tag.getFirst(FieldKey.GENRE));
+				}
 			}
 		}
+		
+		System.out.printf(initialGenres.toString());
 
 
-
+		////////////// CHANGE TAG EXAMPLE //////////////
 //		AudioFile f = AudioFileIO.read(testFile);
 //		Tag tag = f.getTag();
 //
