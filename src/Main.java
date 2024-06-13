@@ -1,7 +1,6 @@
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
@@ -14,7 +13,7 @@ import java.util.Scanner;
 import java.util.logging.LogManager;
 
 public class Main {
-	public static void main(String args[]) throws TagException, CannotWriteException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException {
+	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException {
 		LogManager.getLogManager().reset();	// Disable log
 		
 		Scanner terminalInput = new Scanner(System.in);		// Input from terminal
@@ -40,13 +39,13 @@ public class Main {
 
 
 
-//		AudioFile f = AudioFileIO.read(testFile);		// Чтение аудиофайла
-//		Tag tag = f.getTag();							// Получение тегов
+//		AudioFile f = AudioFileIO.read(testFile);
+//		Tag tag = f.getTag();
 //
 //		System.out.printf("%s\n", tag.getFirst(FieldKey.GENRE));
 //
-//		tag.setField(FieldKey.GENRE, "Punk-rock");	// Изменение тега
-//		f.commit();										// Подтверждение изменения
+//		tag.setField(FieldKey.GENRE, "Punk-rock");		// Change tag
+//		f.commit();										// Confirm changes
 //
 //		System.out.printf("%s\n", tag.getFirst(FieldKey.GENRE));
 	}
