@@ -15,24 +15,24 @@ import java.util.logging.LogManager;
 
 public class Main {
 	public static void main(String args[]) throws TagException, CannotWriteException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException {
-		LogManager.getLogManager().reset();	// Отключение логов
+		LogManager.getLogManager().reset();	// Disable log
 		
-		Scanner terminalInput = new Scanner(System.in);		// Входной поток из терминала
+		Scanner terminalInput = new Scanner(System.in);		// Input from terminal
 		
 		System.out.printf("Type directory path: ");
-		String directoryPath = terminalInput.nextLine();	// Ввод директории
+		String directoryPath = terminalInput.nextLine();	// Input directory path
 		
 
-		//File directory = new File("C:\\Users\\vit20\\Documents\\test");	// Директория с файлами
-		File directory = new File(directoryPath);							// Директория с файлами
-		File files[] = directory.listFiles();								// Массив с файлами из директории
+		//File directory = new File("C:\\Users\\vit20\\Documents\\test");	// Directory with files
+		File directory = new File(directoryPath);							// Directory with files
+		File files[] = directory.listFiles();								// Files array from directory
 		
 		for (File file : files) {
 			if (file.isFile()) {
 				System.out.printf("File name:\n%s\n", file.getName());
 				
-				AudioFile audioFile = AudioFileIO.read(file);			// Чтение аудиофайла
-				Tag tag = audioFile.getTag();							// Получение тега
+				AudioFile audioFile = AudioFileIO.read(file);
+				Tag tag = audioFile.getTag();
 				
 				System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
 			}
