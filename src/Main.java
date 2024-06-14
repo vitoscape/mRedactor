@@ -15,6 +15,8 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.LogManager;
 
+import static java.lang.System.exit;
+
 public class Main {
 	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException,
 			ReadOnlyFileException, IOException, CannotWriteException {
@@ -22,28 +24,41 @@ public class Main {
 		LogManager.getLogManager().reset();	// Disable log
 		
 		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
+		String directoryPath = null;
+		File directory = null;
 		
-		System.out.print("Type directory path: ");
-		String directoryPath = terminalInput.nextLine();					// Input directory path
-		
-		try {
-			if (directoryPath.isEmpty()) throw new EmptyDirectoryPathException("Empty directory path exception!");
-		} catch (EmptyDirectoryPathException e) {
-			System.out.println(e.getMessage());
+		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
+			System.out.print("\033[H\033[2J");								// Clear terminal window
+			System.out.flush();
+			
+			System.out.print("Type directory path: ");
+			directoryPath = terminalInput.nextLine();                    	// Input directory path
+			
+			directory = new File(directoryPath);
 		}
 		
 		//File directory = new File(" /* PATH TO YOUR DIRECTORY */ ");		// Directory with files
-		File directory = new File(directoryPath);							// Directory with files
+		//File directory = new File(directoryPath);							// Directory with files
 		File files[] = directory.listFiles();								// Files array from directory
 		
 		ArrayList<String> initialGenres = new ArrayList<>();
 		ArrayList<String> changedGenres = new ArrayList<>();
 		
 		// Filling initialGenres ArrayList
-		assert files != null;	// If files contain null
+		assert files != null;    // If files contain null
 		for (File file : files) {
 			if (file.isFile()) {
-				AudioFile audioFile = AudioFileIO.read(file);
+				
+				AudioFile audioFile = null;
+				try {
+					 audioFile = AudioFileIO.read(file);
+				} catch (CannotReadException e) {
+					//System.out.printf("%s\n", e.getMessage());
+					System.out.print("No audio files in this directory.\n");
+					System.out.print("Program exit.\n");
+					exit(1);
+				}
+				
 				Tag tag = audioFile.getTag();
 				
 				// Add unique genres to ArrayList of initial genres
