@@ -25,7 +25,7 @@ public class Main {
 		System.out.print("Type directory path: ");
 		String directoryPath = terminalInput.nextLine();					// Input directory path
 		
-		//File directory = new File("C:\\Users\\vit20\\Documents\\test");	// Directory with files
+		//File directory = new File(" /* PATH TO YOUR DIRECTORY */ ");		// Directory with files
 		File directory = new File(directoryPath);							// Directory with files
 		File files[] = directory.listFiles();								// Files array from directory
 		
