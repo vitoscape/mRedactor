@@ -16,7 +16,8 @@ import java.util.Scanner;
 import java.util.logging.LogManager;
 
 public class Main {
-	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
+	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException,
+			ReadOnlyFileException, IOException, CannotWriteException {
 		
 		LogManager.getLogManager().reset();	// Disable log
 		
@@ -24,6 +25,12 @@ public class Main {
 		
 		System.out.print("Type directory path: ");
 		String directoryPath = terminalInput.nextLine();					// Input directory path
+		
+		try {
+			if (directoryPath.isEmpty()) throw new EmptyDirectoryPathException("Empty directory path exception!");
+		} catch (EmptyDirectoryPathException e) {
+			System.out.println(e.getMessage());
+		}
 		
 		//File directory = new File(" /* PATH TO YOUR DIRECTORY */ ");		// Directory with files
 		File directory = new File(directoryPath);							// Directory with files
