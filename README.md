@@ -1,6 +1,6 @@
 Audio file (mp3, flac (tested) and other) tag redactor.
 
-Work in progress.
+**Work in progress.**
 
 Based on [jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger/)
 by [IJabz](https://bitbucket.org/ijabz/).
