@@ -1,4 +1,9 @@
-Audio file (mp3, flac) tag redactor. Work in progress.
+Audio file (mp3, flac (tested) and other) tag redactor.
+
+Work in progress.
+
+Based on [jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger/)
+by [IJabz](https://bitbucket.org/ijabz/).
 
 # Version 0.1.1 (terminal work)
 This version can only change the genres of audio files.
