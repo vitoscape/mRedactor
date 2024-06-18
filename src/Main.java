@@ -19,13 +19,77 @@ import static java.lang.System.exit;
 
 public class Main {
 	
-	public static void editAlbum() throws CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
-		
-		System.out.print("Editing album...\n");
+	private static void clearTerminal() {
+		// Clear terminal window
+		System.out.print("\033[H\033[2J");
+		System.out.flush();
+	}
+	
+	private static void editAlbum() throws CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
 		
 		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
 		
 		// Input directory path
+		String directoryPath = null;
+		File directory = null;
+		
+		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
+			clearTerminal();
+			
+			System.out.print("Type directory path: ");
+			directoryPath = terminalInput.nextLine();                    	// Input directory path
+			
+			directory = new File(directoryPath);
+		}
+		
+		File files[] = directory.listFiles();								// Files array from directory
+		
+		// Tags to change
+		String artist = null;	// This tag will also change ALBUM_ARTIST tag
+		String album = null;
+		String genre = null;
+		String year = null;
+		
+		// Fill tags to change
+		System.out.print("Artist: ");
+		artist = terminalInput.nextLine();
+		System.out.print("Album: ");
+		album = terminalInput.nextLine();
+		System.out.print("Genre: ");
+		genre = terminalInput.nextLine();
+		System.out.print("Year: ");
+		year = terminalInput.nextLine();
+		
+		
+		assert files != null;    	// If files contain null
+		for (File file : files) {
+			if (file.isFile()) {
+				AudioFile audioFile = AudioFileIO.read(file);
+				Tag tag = audioFile.getTag();
+				
+				tag.setField(FieldKey.ARTIST, artist);
+				tag.setField(FieldKey.ALBUM_ARTIST, artist);
+				tag.setField(FieldKey.ALBUM, album);
+				tag.setField(FieldKey.GENRE, genre);
+				tag.setField(FieldKey.YEAR, year);
+				tag.setField(FieldKey.COMMENT, "");	// Remove comment
+				
+				audioFile.commit();	// Apply change
+			}
+		}
+		
+		System.out.print("\nDone!\n");
+	}
+	
+	
+	
+	private static void editDirectory() throws CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
+		
+		System.out.print("Editing audio files in directory...\n");
+		
+		LogManager.getLogManager().reset();	// Disable log
+		
+		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
 		String directoryPath = null;
 		File directory = null;
 		
@@ -59,10 +123,9 @@ public class Main {
 				AudioFile audioFile = null;
 				try {
 					audioFile = AudioFileIO.read(file);
-				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException |
-						 InvalidAudioFrameException e) {										// Sometimes throws this exception with directory with audio files
-					//System.out.printf("%s\n", e.getMessage());
-					System.out.print("No audio files in this directory.\n");
+				} catch (CannotReadException e) {										// Sometimes throws this exception with directory with audio files
+					//System.out.printf("%s\n", e.getMessage());						// TODO: Program should exit when there is not a single audio file in the directory.
+					System.out.print("No audio files in this directory.\n");			// Now program exit when at least one file in the directory is not an audio file
 					System.out.print("Program exit.\n");
 					exit(1);
 				}
@@ -135,14 +198,6 @@ public class Main {
 				//System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
 			}
 		}
-	}
-	
-	
-	
-	public static void editDirectory() {
-		
-		System.out.print("Editing audio files in directory...\n");
-		
 	}
 	
 	
