@@ -43,6 +43,30 @@ public class Main {
 		}
 		
 		File files[] = directory.listFiles();								// Files array from directory
+		AudioFile audioFile;
+		Tag tag;
+		
+		
+		// Check if the directory contains files
+		boolean isDirContAudio = false;
+		assert files != null;    		// If files contain null
+		
+		for (File file : files) {
+			if (file.isFile()) {
+				try {									// If not a single file is audio then isDirContAudio still false
+					audioFile = AudioFileIO.read(file);
+				} catch (CannotReadException e) {
+					continue;
+				}
+				isDirContAudio = true;
+			}
+		}
+		
+		if (!isDirContAudio) {	// If no audio files then return
+			System.out.print("Directory does not contain audio files.\n");
+			return;
+		}
+		
 		
 		// Fill tags to change
 		System.out.print("Artist: ");
@@ -55,12 +79,8 @@ public class Main {
 		String year = terminalInput.nextLine();
 		
 		
-		assert files != null;    	// If files contain null
 		for (File file : files) {
 			if (file.isFile()) {
-				AudioFile audioFile;
-				Tag tag;
-				
 				try {
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
@@ -218,7 +238,7 @@ public class Main {
 			System.out.print("\033[H\033[2J");			// Clear terminal window
 			System.out.flush();
 			
-			System.out.print("What mode do you want to use?\n0 — edit album;\n1 — edit various audio files in directory.\n");
+			System.out.print("What mode do you want to use?\n0 — edit album;\n1 — edit various audio files in directory.\nMode: ");
 			inputMode = terminalInput.next();			// Input mode
 		}
 		
