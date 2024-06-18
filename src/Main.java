@@ -69,6 +69,7 @@ public class Main {
 		
 		
 		// Fill tags to change
+		System.out.print("Enter tags that you want to set up. Type 0 if you want to keep tag.\n");
 		System.out.print("Artist: ");
 		String artist = terminalInput.nextLine();
 		System.out.print("Album: ");
@@ -78,7 +79,7 @@ public class Main {
 		System.out.print("Year: ");
 		String year = terminalInput.nextLine();
 		
-		
+		// Change tags
 		for (File file : files) {
 			if (file.isFile()) {
 				try {
@@ -88,11 +89,19 @@ public class Main {
 					continue;						// If this file is not audio then continue the iteration
 				}
 				
-				tag.setField(FieldKey.ARTIST, artist);
-				tag.setField(FieldKey.ALBUM_ARTIST, artist);
-				tag.setField(FieldKey.ALBUM, album);
-				tag.setField(FieldKey.GENRE, genre);
-				tag.setField(FieldKey.YEAR, year);
+				if (!artist.equals("0")) {
+					tag.setField(FieldKey.ARTIST, artist);
+					tag.setField(FieldKey.ALBUM_ARTIST, artist);
+				}
+				if (!album.equals("0")) {
+					tag.setField(FieldKey.ALBUM, album);
+				}
+				if (!genre.equals("0")) {
+					tag.setField(FieldKey.GENRE, genre);
+				}
+				if (!year.equals("0")) {
+					tag.setField(FieldKey.YEAR, year);
+				}
 				tag.setField(FieldKey.COMMENT, "");	// Remove comment
 				
 				audioFile.commit();	// Apply change
