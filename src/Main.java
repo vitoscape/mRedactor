@@ -25,7 +25,7 @@ public class Main {
 		System.out.flush();
 	}
 	
-	private static void editAlbum() throws CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
+	private static void editAlbum() throws TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
 		
 		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
 		
@@ -44,28 +44,29 @@ public class Main {
 		
 		File files[] = directory.listFiles();								// Files array from directory
 		
-		// Tags to change
-		String artist = null;	// This tag will also change ALBUM_ARTIST tag
-		String album = null;
-		String genre = null;
-		String year = null;
-		
 		// Fill tags to change
 		System.out.print("Artist: ");
-		artist = terminalInput.nextLine();
+		String artist = terminalInput.nextLine();
 		System.out.print("Album: ");
-		album = terminalInput.nextLine();
+		String album = terminalInput.nextLine();
 		System.out.print("Genre: ");
-		genre = terminalInput.nextLine();
+		String genre = terminalInput.nextLine();
 		System.out.print("Year: ");
-		year = terminalInput.nextLine();
+		String year = terminalInput.nextLine();
 		
 		
 		assert files != null;    	// If files contain null
 		for (File file : files) {
 			if (file.isFile()) {
-				AudioFile audioFile = AudioFileIO.read(file);
-				Tag tag = audioFile.getTag();
+				AudioFile audioFile;
+				Tag tag;
+				
+				try {
+					audioFile = AudioFileIO.read(file);
+					tag = audioFile.getTag();
+				} catch (CannotReadException e) {
+					continue;						// If this file is not audio then continue the iteration
+				}
 				
 				tag.setField(FieldKey.ARTIST, artist);
 				tag.setField(FieldKey.ALBUM_ARTIST, artist);
