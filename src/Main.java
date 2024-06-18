@@ -18,12 +18,14 @@ import java.util.logging.LogManager;
 import static java.lang.System.exit;
 
 public class Main {
-	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException,
-			ReadOnlyFileException, IOException, CannotWriteException {
+	
+	public static void editAlbum() throws CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
 		
-		LogManager.getLogManager().reset();	// Disable log
+		System.out.print("Editing album...\n");
 		
 		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
+		
+		// Input directory path
 		String directoryPath = null;
 		File directory = null;
 		
@@ -56,8 +58,9 @@ public class Main {
 				
 				AudioFile audioFile = null;
 				try {
-					 audioFile = AudioFileIO.read(file);
-				} catch (CannotReadException e) {										// Sometimes throws this exception with directory with audio files
+					audioFile = AudioFileIO.read(file);
+				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException |
+						 InvalidAudioFrameException e) {										// Sometimes throws this exception with directory with audio files
 					//System.out.printf("%s\n", e.getMessage());
 					System.out.print("No audio files in this directory.\n");
 					System.out.print("Program exit.\n");
@@ -132,5 +135,45 @@ public class Main {
 				//System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
 			}
 		}
+	}
+	
+	
+	
+	public static void editDirectory() {
+		
+		System.out.print("Editing audio files in directory...\n");
+		
+	}
+	
+	
+	
+	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException,
+			ReadOnlyFileException, IOException, CannotWriteException {
+		
+		Scanner terminalInput = new Scanner(System.in);	// Input from terminal
+		
+		LogManager.getLogManager().reset();				// Disable log
+		
+		
+		// Select redacting mode
+		String inputMode = null;
+		
+		while (inputMode == null || (!inputMode.equals("0") && !inputMode.equals("1"))) {
+			System.out.print("\033[H\033[2J");			// Clear terminal window
+			System.out.flush();
+			
+			System.out.print("What mode do you want to use?\n0 — edit album;\n1 — edit various audio files in directory.\n");
+			inputMode = terminalInput.next();			// Input mode
+		}
+		
+		if (inputMode.equals("0")) {
+			editAlbum();
+		} else if (inputMode.equals("1")) {
+			editDirectory();
+		} else {
+			System.out.print("Wrong mode code.\nProgram exit.\n");
+			exit(2);
+		}
+		
 	}
 }
