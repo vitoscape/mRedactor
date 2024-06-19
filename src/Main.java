@@ -78,6 +78,8 @@ public class Main {
 		String genre = terminalInput.nextLine();
 		System.out.print("Year: ");
 		String year = terminalInput.nextLine();
+		System.out.print("Number of tracks: ");
+		String trackTotal = terminalInput.nextLine();
 		
 		// Change tags
 		for (File file : files) {
@@ -102,13 +104,16 @@ public class Main {
 				if (!year.equals("0")) {
 					tag.setField(FieldKey.YEAR, year);
 				}
+				if (!trackTotal.equals("0")) {
+					tag.setField(FieldKey.TRACK_TOTAL, trackTotal);
+				}
 				tag.setField(FieldKey.COMMENT, "");	// Remove comment
 				
 				audioFile.commit();	// Apply change
 			}
 		}
 		
-		System.out.print("\nDone!\n");
+		System.out.print("Done!\n");
 	}
 	
 	
