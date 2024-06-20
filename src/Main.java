@@ -161,14 +161,14 @@ public class Main {
 				!tagToChange.equals("3") &&
 				!tagToChange.equals("4"))) {
 			
-			clearLine();
-			
+			clearTerminal();
+			System.out.printf("Editing audio files in directory %s\n", directoryPath);
 			System.out.print("What tag you want to change?\n");
 			System.out.print("1 - genre;\n");
 			System.out.print("2 - artist;\n");
 			System.out.print("3 - album;\n");
 			System.out.print("4 - year;\n");
-			System.out.print("0 - exit;\n");
+			System.out.print("0 - exit.\n");
 			System.out.print("Tag: ");
 			
 			tagToChange = terminalInput.next();
