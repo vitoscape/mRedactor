@@ -11,7 +11,6 @@ import org.jaudiotagger.tag.TagException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.LogManager;
 
@@ -21,9 +20,29 @@ public class Main {
 	
 	private static void clearTerminal() {
 		// Clear terminal window
-		System.out.print("\033[H\033[2J");
-		System.out.flush();
+		try {
+			final String os = System.getProperty("os.name");
+			
+			if (os.contains("Windows"))
+			{
+				new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();	// Works in Windows
+			}
+			else
+			{
+				new ProcessBuilder("clear").inheritIO().start().waitFor();			// TODO: Check in other systems
+			}
+		}
+		catch (final Exception e) {
+			//  Handle any exceptions.
+		}
 	}
+	
+	
+	private static void clearLine() {
+		System.out.printf("\033[%dA",1);	// Move cursor up by 1 line
+		System.out.print("\033[2K");		// Erase the line
+	}
+	
 	
 	private static void editAlbum() throws TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
 		
@@ -138,101 +157,118 @@ public class Main {
 			directory = new File(directoryPath);
 		}
 		
-		//File directory = new File(" /* PATH TO YOUR DIRECTORY */ ");		// Directory with files
-		//File directory = new File(directoryPath);							// Directory with files
 		File files[] = directory.listFiles();								// Files array from directory
+		AudioFile audioFile;
+		Tag tag;
 		
-		// Genres
-		ArrayList<String> initialGenres = new ArrayList<>();
-		ArrayList<String> changedGenres = new ArrayList<>();
+		// ArrayLists for initial tags and changed tags
+		ArrayList<String> initialTags = new ArrayList<>();
+		ArrayList<String> changedTags = new ArrayList<>();
 		
-		// Artists
-		ArrayList<String> initialArtists = new ArrayList<>();
-		ArrayList<String> changedArtists = new ArrayList<>();
+		String tagToChange = null;
+		
+		System.out.println();	// Print empty line for correct clearing line in while loop
+		
+		while (tagToChange == null || (
+				!tagToChange.equals("0") &&
+				!tagToChange.equals("1") &&
+				!tagToChange.equals("2") &&
+				!tagToChange.equals("3") &&
+				!tagToChange.equals("4"))) {
+			
+			clearLine();
+			
+			System.out.print("What tag you want to change?\n");
+			System.out.print("1 - genre;\n");
+			System.out.print("2 - artist;\n");
+			System.out.print("3 - album;\n");
+			System.out.print("4 - year;\n");
+			System.out.print("0 - exit;\n");
+			System.out.print("Tag: ");
+			
+			tagToChange = terminalInput.next();
+		}
 		
 		// Filling initial ArrayLists
-		assert files != null;    	// If files contain null
-		for (File file : files) {
-			if (file.isFile()) {
-				
-				AudioFile audioFile = null;
-				try {
-					audioFile = AudioFileIO.read(file);
-				} catch (CannotReadException e) {										// Sometimes throws this exception with directory with audio files
-					//System.out.printf("%s\n", e.getMessage());						// TODO: Program should exit when there is not a single audio file in the directory.
-					System.out.print("No audio files in this directory.\n");			// Now program exit when at least one file in the directory is not an audio file
-					System.out.print("Program exit.\n");
-					exit(1);
-				}
-				
-				Tag tag = audioFile.getTag();
-				
-				// Add unique genres to ArrayList of initial genres
-				if (!initialGenres.contains(tag.getFirst(FieldKey.GENRE))) {
-					initialGenres.add(tag.getFirst(FieldKey.GENRE));
-				}
-				
-				// Add unique artists to ArrayList of initial artists
-				if (!initialArtists.contains(tag.getFirst(FieldKey.ARTIST))) {
-					initialArtists.add(tag.getFirst(FieldKey.ARTIST));
-				}
-			}
-		}
+		boolean isDirContAudio = false;
+		assert files != null;    		// If files contain null
 		
-		System.out.printf("Initial genres: %s\n", initialGenres);
-		System.out.printf("Initial artists: %s\n", initialArtists);
-		
-		// Change initial genres to another genres
-		for (String initialGenre : initialGenres) {
-			System.out.printf("What genre do you want to replace %s with? Type 0 if you don't want to replace genre.\n", initialGenre);
-			String changedGenre = terminalInput.nextLine();
-			
-			if (Objects.equals(changedGenre, "0")) {	// If user don't want to change genre keep this genre
-				changedGenres.add(initialGenre);
-			} else {
-				changedGenres.add(changedGenre);
-			}
-		}
-		
-		// Change initial artists to another artists
-		for (String initialArtist : initialArtists) {
-			System.out.printf("What artist do you want to replace %s with? Type 0 if you don't want to replace artist.\n", initialArtist);
-			String changedArtist = terminalInput.nextLine();
-			
-			if (Objects.equals(changedArtist, "0")) {	// If user don't want to change artist keep this artist
-				changedArtists.add(initialArtist);
-			} else {
-				changedArtists.add(changedArtist);
-			}
-		}
-		
-		System.out.printf("Changed genres: %s\n", changedGenres);
-		System.out.printf("Changed artists: %s\n", changedArtists);
-		
-		for (File file : files) {
-			if (file.isFile()) {
-				AudioFile audioFile = AudioFileIO.read(file);
-				Tag tag = audioFile.getTag();
-				
-				for (int i = 0; i < initialGenres.size(); i++) {								// Go through genres
-					if (Objects.equals(tag.getFirst(FieldKey.GENRE), initialGenres.get(i))) {	// If the genre of the audio file is equal to initial genre
-						tag.setField(FieldKey.GENRE, changedGenres.get(i));						// Then change the genre of the audio file to the new genre
-						audioFile.commit();														// Apply change
-					}
-				}
-				
-				for (int i = 0; i < initialArtists.size(); i++) {								// Go through artists
-					if (Objects.equals(tag.getFirst(FieldKey.ARTIST), initialArtists.get(i))) {	// If artist of the audio file is equal to initial artist
-						tag.setField(FieldKey.ARTIST, changedArtists.get(i));					// Then change artist of the audio file to the new artist
-						audioFile.commit();														// Apply change
-					}
-				}
-				
-				// Print changed genres
-				//System.out.printf("File name:\n%s\n", file.getName());
-				//System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
-			}
-		}
+//		for (File file : files) {
+//			if (file.isFile()) {
+//
+//				try {									// If not a single file is audio then isDirContAudio still false
+//					audioFile = AudioFileIO.read(file);
+//				} catch (CannotReadException e) {
+//					continue;
+//				}
+//				isDirContAudio = true;
+//
+//				// Add unique genres to ArrayList of initial genres
+//				if (!initialGenres.contains(tag.getFirst(FieldKey.GENRE))) {
+//					initialGenres.add(tag.getFirst(FieldKey.GENRE));
+//				}
+//
+//				// Add unique artists to ArrayList of initial artists
+//				if (!initialArtists.contains(tag.getFirst(FieldKey.ARTIST))) {
+//					initialArtists.add(tag.getFirst(FieldKey.ARTIST));
+//				}
+//			}
+//		}
+//
+//		System.out.printf("Initial genres: %s\n", initialGenres);
+//		System.out.printf("Initial artists: %s\n", initialArtists);
+//
+//		// Change initial genres to another genres
+//		for (String initialGenre : initialGenres) {
+//			System.out.printf("What genre do you want to replace %s with? Type 0 if you don't want to replace genre.\n", initialGenre);
+//			String changedGenre = terminalInput.nextLine();
+//
+//			if (Objects.equals(changedGenre, "0")) {	// If user don't want to change genre keep this genre
+//				changedGenres.add(initialGenre);
+//			} else {
+//				changedGenres.add(changedGenre);
+//			}
+//		}
+//
+//		// Change initial artists to another artists
+//		for (String initialArtist : initialArtists) {
+//			System.out.printf("What artist do you want to replace %s with? Type 0 if you don't want to replace artist.\n", initialArtist);
+//			String changedArtist = terminalInput.nextLine();
+//
+//			if (Objects.equals(changedArtist, "0")) {	// If user don't want to change artist keep this artist
+//				changedArtists.add(initialArtist);
+//			} else {
+//				changedArtists.add(changedArtist);
+//			}
+//		}
+//
+//		System.out.printf("Changed genres: %s\n", changedGenres);
+//		System.out.printf("Changed artists: %s\n", changedArtists);
+//
+//		for (File file : files) {
+//			if (file.isFile()) {
+//				AudioFile audioFile = AudioFileIO.read(file);
+//				Tag tag = audioFile.getTag();
+//
+//				for (int i = 0; i < initialGenres.size(); i++) {								// Go through genres
+//					if (Objects.equals(tag.getFirst(FieldKey.GENRE), initialGenres.get(i))) {	// If the genre of the audio file is equal to initial genre
+//						tag.setField(FieldKey.GENRE, changedGenres.get(i));						// Then change the genre of the audio file to the new genre
+//						audioFile.commit();														// Apply change
+//					}
+//				}
+//
+//				for (int i = 0; i < initialArtists.size(); i++) {								// Go through artists
+//					if (Objects.equals(tag.getFirst(FieldKey.ARTIST), initialArtists.get(i))) {	// If artist of the audio file is equal to initial artist
+//						tag.setField(FieldKey.ARTIST, changedArtists.get(i));					// Then change artist of the audio file to the new artist
+//						audioFile.commit();														// Apply change
+//					}
+//				}
+//
+//				// Print changed genres
+//				//System.out.printf("File name:\n%s\n", file.getName());
+//				//System.out.printf("Genre: %s\n\n", tag.getFirst(FieldKey.GENRE));
+//			}
+//		}
 	}
 	
 	
@@ -249,10 +285,9 @@ public class Main {
 		String inputMode = null;
 		
 		while (inputMode == null || (!inputMode.equals("0") && !inputMode.equals("1"))) {
-			System.out.print("\033[H\033[2J");			// Clear terminal window
-			System.out.flush();
+			clearTerminal();
 			
-			System.out.print("What mode do you want to use?\n0 — edit album;\n1 — edit various audio files in directory.\nMode: ");
+			System.out.print("What mode do you want to use?\n0 - edit album;\n1 - edit various audio files in directory.\nMode: ");
 			inputMode = terminalInput.next();			// Input mode
 		}
 		
