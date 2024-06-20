@@ -19,28 +19,18 @@ import static java.lang.System.exit;
 public class Main {
 	
 	private static void clearTerminal() {
-		// Clear terminal window
 		try {
 			final String os = System.getProperty("os.name");
 			
-			if (os.contains("Windows"))
-			{
-				new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();	// Works in Windows
+			if (os.contains("Windows")) {
+				new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();	// Clear terminal in Windows
+			} else {
+				System.out.print("\033[H\033[2J");	// ESC-sequence to clear terminal window
+				System.out.flush();
 			}
-			else
-			{
-				new ProcessBuilder("clear").inheritIO().start().waitFor();			// TODO: Check in other systems
-			}
+		} catch (final Exception e) {
+			//  Handle any exceptions
 		}
-		catch (final Exception e) {
-			//  Handle any exceptions.
-		}
-	}
-	
-	
-	private static void clearLine() {
-		System.out.printf("\033[%dA",1);	// Move cursor up by 1 line
-		System.out.print("\033[2K");		// Erase the line
 	}
 	
 	
@@ -54,10 +44,9 @@ public class Main {
 		
 		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
 			clearTerminal();
-			
+			System.out.print("Editing album...\n");
 			System.out.print("Type directory path: ");
 			directoryPath = terminalInput.nextLine();                    	// Input directory path
-			
 			directory = new File(directoryPath);
 		}
 		
@@ -139,8 +128,6 @@ public class Main {
 	
 	private static void editDirectory() throws CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
 		
-		System.out.print("Editing audio files in directory...\n");
-		
 		LogManager.getLogManager().reset();	// Disable log
 		
 		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
@@ -148,12 +135,10 @@ public class Main {
 		File directory = null;
 		
 		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
-			System.out.print("\033[H\033[2J");								// Clear terminal window
-			System.out.flush();
-			
+			clearTerminal();
+			System.out.print("Editing audio files in directory...\n");
 			System.out.print("Type directory path: ");
 			directoryPath = terminalInput.nextLine();                    	// Input directory path
-			
 			directory = new File(directoryPath);
 		}
 		
