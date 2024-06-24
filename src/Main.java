@@ -210,14 +210,14 @@ public class Main {
 		}
 		
 		System.out.printf("Found %d unique tags of %s.\n", initialTags.size(), tags.get(tagIndex));
+		System.out.print("Type new value for old value. Type 0 if you don't want to replace this tag.\n");
 
 		// Change initial genres to another genres
 		for (String initialTag : initialTags) {
-			System.out.printf("[%d/%d] What %s do you want to replace \"%s\" with? ",initialTags.indexOf(initialTag) + 1, initialTags.size(), tags.get(tagIndex), initialTag);
-			System.out.printf("Type 0 if you don't want to replace this %s.\n", tags.get(tagIndex));
+			System.out.printf("[%d/%d] %s -> ",initialTags.indexOf(initialTag) + 1, initialTags.size(), initialTag);
 			String changedTag = terminalInput.nextLine();
 
-			if (changedTag.equals("0")) {	// If user don't want to change genre keep this genre
+			if (changedTag.equals("0")) {		// If user don't want to change genre keep this genre
 				changedTags.add(initialTag);
 			} else {
 				changedTags.add(changedTag);
