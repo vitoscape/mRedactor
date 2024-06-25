@@ -10,6 +10,10 @@ import org.jaudiotagger.tag.TagException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InputMismatchException;
@@ -111,6 +115,25 @@ public class Main {
 				tag.setField(FieldKey.COMMENT, "");	// Remove comment
 				
 				audioFile.commit();	// Apply change
+				
+				// Rename file
+				Path source = Paths.get(file.getPath());
+				String newName = artist + " - " + tag.getFirst(FieldKey.TITLE);
+				
+				// If new name contains forbidden characters for files then delete these characters
+				if (newName.matches(".*[<>\"/\\\\|?*:].*")) {
+					newName = newName.replace("<", "");
+					newName = newName.replace(">", "");
+					newName = newName.replace("\"", "");
+					newName = newName.replace("/", "");
+					newName = newName.replace("\\", "");
+					newName = newName.replace("|", "");
+					newName = newName.replace("?", "");
+					newName = newName.replace("*", "");
+					newName = newName.replace(":", "");
+				}
+				
+				System.out.printf("%s\t->\t%s\n", source, newName);
 			}
 		}
 		
@@ -262,6 +285,7 @@ public class Main {
 		assert files != null;    				// If files contain null
 		
 		// Check if the directory contains audio files
+		System.out.print("Checking files in directory...\n");
 		if (!isContainAudioFiles(files)) {
 			System.out.print("Directory does not contain audio files.\n");
 			return;
