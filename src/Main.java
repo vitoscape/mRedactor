@@ -10,8 +10,6 @@ import org.jaudiotagger.tag.TagException;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -118,6 +116,7 @@ public class Main {
 				
 				// Rename file
 				Path source = Paths.get(file.getPath());
+				// TODO: Add extension from source to newName
 				String newName = artist + " - " + tag.getFirst(FieldKey.TITLE);
 				
 				// If new name contains forbidden characters for files then delete these characters
