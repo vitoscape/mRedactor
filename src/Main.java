@@ -219,13 +219,24 @@ public class Main {
 			if (file.isFile()) {
 				try {									// If not audio file then continue
 					audioFile = AudioFileIO.read(file);
+					
+					tag = audioFile.getTag();
+					
+					for (FieldKey fieldKey : FieldKey.values()) {
+						if (tag.getFields(fieldKey).size() > 1) {
+							String singleTag = tag.getFirst(fieldKey);	// Read single tag
+							tag.deleteField(fieldKey);					// Delete tag
+							tag.setField(fieldKey, singleTag);			// Set single tag in that field
+							audioFile.commit();							// Apply change
+						}
+					}
 				} catch (Exception e) {
 					continue;
 				}
-				tag = audioFile.getTag();
-
 			}
 		}
+		
+		System.out.print("Done!\n");
 	}
 	
 	
@@ -260,11 +271,13 @@ public class Main {
 		// Select redacting mode
 		int inputMode = -1;
 		
-		while (inputMode < 0 || inputMode > 1) {
+		while (inputMode < 0 || inputMode > 2) {
 			clearTerminal();
 			
-			System.out.printf("Type path of directory with audio files: %s", directoryPath);
-			System.out.print("What mode do you want to use?\n0 - edit album;\n1 - edit various audio files in directory.\nMode: ");
+			System.out.printf("Type path of directory with audio files: %s\n", directoryPath);
+			System.out.print("What mode do you want to use?\n");
+			System.out.print("0 - edit album;\n1 - edit various audio files in directory;\n");
+			System.out.print("2 - remove multiplied tags separated by ';'.\nMode: ");
 			try {
 				inputMode = terminalInput.nextInt();	// Input mode
 			} catch (InputMismatchException e) {		// If mode is not int then keep inputMode = -1
@@ -277,6 +290,8 @@ public class Main {
 			editAlbum(files);
 		} else if (inputMode == 1) {
 			editDirectory(files);
+		} else if (inputMode == 2) {
+			removeMultiplyTags(files);
 		} else {										// Keep this if new mode will be added
 			System.out.print("Wrong mode code.\nProgram exit.\n");
 			exit(2);
