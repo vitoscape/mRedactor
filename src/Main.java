@@ -52,33 +52,12 @@ public class Main {
 	}
 	
 	
-	private static void editAlbum() throws TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
+	private static void editAlbum(File files[]) throws TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
 		
 		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
 		
-		// Input directory path
-		String directoryPath = null;
-		File directory = null;
-		
-		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
-			clearTerminal();
-			System.out.print("Editing album...\n");
-			System.out.print("Type directory path: ");
-			directoryPath = terminalInput.nextLine();                    	// Input directory path
-			directory = new File(directoryPath);
-		}
-		
-		File files[] = directory.listFiles();								// Files array from directory
-		assert files != null;    											// If files contain null
 		AudioFile audioFile;
 		Tag tag;
-		
-		
-		// Check if the directory contains audio files
-		if (!isContainAudioFiles(files)) {	// If no audio files then return
-			System.out.print("Directory does not contain audio files.\n");
-			return;
-		}
 		
 		
 		// Fill tags to change
@@ -130,33 +109,13 @@ public class Main {
 	}
 	
 	
-	
-	private static void editDirectory() throws TagException, CannotWriteException {
-		
-		LogManager.getLogManager().reset();	// Disable log
+	private static void editDirectory(File files[]) throws TagException, CannotWriteException {
 		
 		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
-		String directoryPath = null;
-		File directory = null;
 		
-		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
-			clearTerminal();
-			System.out.print("Editing audio files in directory...\n");
-			System.out.print("Type directory path: ");
-			directoryPath = terminalInput.nextLine();                    	// Input directory path
-			directory = new File(directoryPath);
-		}
-		
-		File files[] = directory.listFiles();								// Files array from directory
-		assert files != null;    		// If files contain null
 		AudioFile audioFile;
 		Tag tag;
 		
-		// Check if the directory contains audio files
-		if (!isContainAudioFiles(files)) {
-			System.out.print("Directory does not contain audio files.\n");
-			return;
-		}
 		
 		// ArrayLists for initial tags and changed tags
 		ArrayList<String> initialTags = new ArrayList<>();
@@ -173,7 +132,6 @@ public class Main {
 		
 		while (tagIndex < 0 || tagIndex > tags.size()) {
 			clearTerminal();
-			System.out.printf("Editing audio files in directory %s\n", directoryPath);
 			System.out.print("What tag you want to change?\n");
 			for (int i = 1; i <= tags.size(); i++) {
 				System.out.printf("%d - %s;\n",i, tags.get(i));
@@ -247,13 +205,43 @@ public class Main {
 	}
 	
 	
+	private static void removeMultiplyTags(File files[]) {
+		
+		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
+		
+		AudioFile audioFile;
+		Tag tag;
+		
+		
+	}
 	
-	public static void main(String args[]) throws TagException, CannotReadException, InvalidAudioFrameException,
+	
+	public static void main(String args[]) throws TagException, InvalidAudioFrameException,
 			ReadOnlyFileException, IOException, CannotWriteException {
 		
 		Scanner terminalInput = new Scanner(System.in);	// Input from terminal
 		
 		LogManager.getLogManager().reset();				// Disable log
+		
+		// Input directory path
+		String directoryPath = null;
+		File directory = null;
+		
+		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
+			clearTerminal();
+			System.out.print("Type path of directory with audio files: ");
+			directoryPath = terminalInput.nextLine();                    	// Input directory path
+			directory = new File(directoryPath);
+		}
+		
+		File files[] = directory.listFiles();	// Files array from directory
+		assert files != null;    				// If files contain null
+		
+		// Check if the directory contains audio files
+		if (!isContainAudioFiles(files)) {
+			System.out.print("Directory does not contain audio files.\n");
+			return;
+		}
 		
 		
 		// Select redacting mode
@@ -262,6 +250,7 @@ public class Main {
 		while (inputMode < 0 || inputMode > 1) {
 			clearTerminal();
 			
+			System.out.printf("Type path of directory with audio files: %s", directoryPath);
 			System.out.print("What mode do you want to use?\n0 - edit album;\n1 - edit various audio files in directory.\nMode: ");
 			try {
 				inputMode = terminalInput.nextInt();	// Input mode
@@ -272,9 +261,9 @@ public class Main {
 		}
 		
 		if (inputMode == 0) {
-			editAlbum();
+			editAlbum(files);
 		} else if (inputMode == 1) {
-			editDirectory();
+			editDirectory(files);
 		} else {										// Keep this if new mode will be added
 			System.out.print("Wrong mode code.\nProgram exit.\n");
 			exit(2);
