@@ -20,6 +20,15 @@ import static java.lang.System.exit;
 
 public class Main {
 	
+	private static final HashMap<Integer, FieldKey> tags = new HashMap<>();	// HashMap to store keys for editable tags
+	static {
+		tags.put(1, FieldKey.GENRE);
+		tags.put(2, FieldKey.ARTIST);
+		tags.put(3, FieldKey.ALBUM);
+		tags.put(4, FieldKey.ALBUM_ARTIST);
+		tags.put(5, FieldKey.YEAR);
+	}
+	
 	private static void clearTerminal() {
 		try {
 			final String os = System.getProperty("os.name");
@@ -121,13 +130,6 @@ public class Main {
 		ArrayList<String> initialTags = new ArrayList<>();
 		ArrayList<String> changedTags = new ArrayList<>();
 		
-		HashMap<Integer, FieldKey> tags = new HashMap<>();	// HashMap to store keys for tags
-		tags.put(1, FieldKey.GENRE);
-		tags.put(2, FieldKey.ARTIST);
-		tags.put(3, FieldKey.ALBUM);
-		tags.put(4, FieldKey.ALBUM_ARTIST);
-		tags.put(5, FieldKey.YEAR);
-		
 		int tagIndex = -1;
 		
 		while (tagIndex < 0 || tagIndex > tags.size()) {
@@ -204,15 +206,26 @@ public class Main {
 		System.out.print("Done.\n");
 	}
 	
-	
+
 	private static void removeMultiplyTags(File files[]) {
-		
+
 		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
-		
+
 		AudioFile audioFile;
 		Tag tag;
-		
-		
+
+		System.out.print("Removing multiplied tags separated by ';'...\n");
+		for (File file : files) {
+			if (file.isFile()) {
+				try {									// If not audio file then continue
+					audioFile = AudioFileIO.read(file);
+				} catch (Exception e) {
+					continue;
+				}
+				tag = audioFile.getTag();
+
+			}
+		}
 	}
 	
 	
