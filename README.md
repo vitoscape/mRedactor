@@ -5,7 +5,7 @@ Audio file (mp3, flac (tested) and other) tag redactor.
 Based on [jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger/)
 by [IJabz](https://bitbucket.org/ijabz/).
 
-# Version 0.2 (terminal work)
+# Version 0.2.1 (terminal work)
 This version can only change the genres of audio files.
 Suitable for changing tags for a large number of audio files with the same tag values.
 **Before use this test version make backup of your files.**
@@ -18,12 +18,13 @@ To change genres of your audio files run ```mRedactor.jar``` in terminal using:
 java -jar mRedactor.jar
 ```
 
-First you need to select one of two modes:
-0 — edit one album;
-1 — edit various audio files in one directory.
+First you need to enter the path of the directory with audio files. Then select mode:
+0. Edit one album.
+1. Edit various audio files in one directory.
+2. Remove multiplied tags separated by ```;```.
 
 ## Mode 0: edit album
-You need to type the path of the directory with audio files. Then you need to type tags:
+You need to type values for tags:
 1. Artist
 2. Album
 3. Genre
@@ -41,3 +42,12 @@ You need to type the path of the directory with audio files. Then you need to se
 5. Year
 
 All old tags will be replaced with new ones.
+
+## Mode 2: remove multiplied tags separated by ```;```
+All multiplied tags will be replaced by single tag:
+
+```Genre;Genre;Genre;Genre;Genre;Genre``` will be replaced by ```Genre```.
+
+**WARNING**: If you need to leave different tags in the same field then don't use this mode.
+Program will delete all tags in every field except first one.
+This will be fixed in future versions.
