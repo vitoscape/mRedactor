@@ -41,7 +41,11 @@ You need to type the path of the directory with audio files. Then you need to se
 4. Album artist
 5. Year
 
-All old tags will be replaced with new ones.
+All old tags will be replaced with new ones. And files will be renamed to:
+```
+Artist - Track Name.ext
+```
+where ```ext``` is extension of file.
 
 ## Mode 2: remove multiplied tags separated by ```;```
 All multiplied tags will be replaced by single tag:
