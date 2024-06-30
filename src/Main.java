@@ -10,6 +10,8 @@ import org.jaudiotagger.tag.TagException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InputMismatchException;
@@ -95,6 +97,8 @@ public class Main {
 				if (!artist.equals("0")) {
 					tag.setField(FieldKey.ARTIST, artist);
 					tag.setField(FieldKey.ALBUM_ARTIST, artist);
+				} else {
+					artist = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
 				}
 				if (!album.equals("0")) {
 					tag.setField(FieldKey.ALBUM, album);
@@ -111,6 +115,33 @@ public class Main {
 				tag.setField(FieldKey.COMMENT, "");	// Remove comment
 				
 				audioFile.commit();	// Apply change
+				
+				
+				// Rename file
+				String fileName = file.getName();
+				int dotIndex = fileName.lastIndexOf('.');								// Get index of last  '.' char to get extension
+				String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);	// Get extension
+				Path dirPath = Paths.get(file.getPath()).getParent();
+				String newName = artist + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
+				
+				// If new name contains forbidden characters for files then delete these characters
+				if (newName.matches(".*[<>\"/\\\\|?*:].*")) {
+					newName = newName.replace("<", "");
+					newName = newName.replace(">", "");
+					newName = newName.replace("\"", "");
+					newName = newName.replace("/", "");
+					newName = newName.replace("\\", "");
+					newName = newName.replace("|", "");
+					newName = newName.replace("?", "");
+					newName = newName.replace("*", "");
+					newName = newName.replace(":", "");
+				}
+				
+				String newPathName = dirPath + "\\" + newName;								// And finally create new full path name
+				
+				if (!file.renameTo(new File(newPathName))) {
+					System.out.printf("Error when renaming file: %s\n", fileName);
+				}
 			}
 		}
 		
@@ -262,6 +293,7 @@ public class Main {
 		assert files != null;    				// If files contain null
 		
 		// Check if the directory contains audio files
+		System.out.print("Checking files in directory...\n");
 		if (!isContainAudioFiles(files)) {
 			System.out.print("Directory does not contain audio files.\n");
 			return;
