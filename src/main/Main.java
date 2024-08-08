@@ -1,13 +1,10 @@
 package main;
 
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import services.EditAlbumService;
 import services.EditDirectoryService;
+import services.RemoveMultiplyTagsService;
 
 import java.io.File;
 import java.util.InputMismatchException;
@@ -19,10 +16,6 @@ import static utils.AudioUtil.isContainAudioFiles;
 import static utils.TerminalUtil.clearTerminal;
 
 public class Main {
-
-	
-
-	
 	
 //	private static void editAlbum(File files[]) throws TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
 //
@@ -199,35 +192,35 @@ public class Main {
 //	}
 	
 
-	private static void removeMultiplyTags(File files[]) {
-		
-		AudioFile audioFile;
-		Tag tag;
-
-		System.out.print("Removing multiplied tags separated by ';'...\n");
-		for (File file : files) {
-			if (file.isFile()) {
-				try {									// If not audio file then continue
-					audioFile = AudioFileIO.read(file);
-					
-					tag = audioFile.getTag();
-					
-					for (FieldKey fieldKey : FieldKey.values()) {
-						if (tag.getFields(fieldKey).size() > 1) {
-							String singleTag = tag.getFirst(fieldKey);	// Read single tag
-							tag.deleteField(fieldKey);					// Delete tag
-							tag.setField(fieldKey, singleTag);			// Set single tag in that field
-							audioFile.commit();							// Apply change
-						}
-					}
-				} catch (Exception e) {
-					continue;
-				}
-			}
-		}
-		
-		System.out.print("Done!\n");
-	}
+//	private static void removeMultiplyTags(File files[]) {
+//
+//		AudioFile audioFile;
+//		Tag tag;
+//
+//		System.out.print("Removing multiplied tags separated by ';'...\n");
+//		for (File file : files) {
+//			if (file.isFile()) {
+//				try {									// If not audio file then continue
+//					audioFile = AudioFileIO.read(file);
+//
+//					tag = audioFile.getTag();
+//
+//					for (FieldKey fieldKey : FieldKey.values()) {
+//						if (tag.getFields(fieldKey).size() > 1) {
+//							String singleTag = tag.getFirst(fieldKey);	// Read single tag
+//							tag.deleteField(fieldKey);					// Delete tag
+//							tag.setField(fieldKey, singleTag);			// Set single tag in that field
+//							audioFile.commit();							// Apply change
+//						}
+//					}
+//				} catch (Exception e) {
+//					continue;
+//				}
+//			}
+//		}
+//
+//		System.out.print("Done!\n");
+//	}
 	
 	
 	public static void main(String args[]) throws TagException, CannotWriteException {
@@ -283,8 +276,9 @@ public class Main {
 			EditDirectoryService editDirectoryService = new EditDirectoryService(files);
 			editDirectoryService.editDirectory();
 		} else if (inputMode == 2) {
-			removeMultiplyTags(files);
-		} else {										// Keep this if new mode will be added
+			RemoveMultiplyTagsService removeMultiplyTagsService = new RemoveMultiplyTagsService(files);
+			removeMultiplyTagsService.removeMultiplyTags();
+		} else {														// Keep this if new mode will be added
 			System.out.print("Wrong mode code.\nProgram exit.\n");
 			exit(2);
 		}
