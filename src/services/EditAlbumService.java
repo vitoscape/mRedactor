@@ -22,7 +22,7 @@ public class EditAlbumService {
 	
 	private final Scanner terminalInput = new Scanner(System.in);
 	
-	private final File[] files;
+	private final File files[];
 	
 	public EditAlbumService(File files[]) {
 		this.files = files;

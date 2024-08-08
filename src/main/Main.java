@@ -7,57 +7,21 @@ import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import services.EditAlbumService;
+import services.EditDirectoryService;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.logging.LogManager;
 
 import static java.lang.System.exit;
+import static utils.AudioUtil.isContainAudioFiles;
+import static utils.TerminalUtil.clearTerminal;
 
 public class Main {
+
 	
-	private static final HashMap<Integer, FieldKey> tags = new HashMap<>();	// HashMap to store keys for editable tags
-	static {
-		tags.put(1, FieldKey.GENRE);
-		tags.put(2, FieldKey.ARTIST);
-		tags.put(3, FieldKey.ALBUM);
-		tags.put(4, FieldKey.ALBUM_ARTIST);
-		tags.put(5, FieldKey.YEAR);
-	}
-	
-	private static void clearTerminal() {
-		try {
-			final String os = System.getProperty("os.name");
-			
-			if (os.contains("Windows")) {
-				new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();	// Clear terminal in Windows
-			} else {
-				System.out.print("\033[H\033[2J");	// ESC-sequence to clear terminal window
-				System.out.flush();
-			}
-		} catch (final Exception e) {
-			//  Handle any exceptions
-		}
-	}
-	
-	
-	private static boolean isContainAudioFiles(File files[]) {
-		boolean retVal = false;
-		for (File file : files) {
-			if (file.isFile()) {
-				try {									// If not a single file is audio then isDirContAudio still false
-					AudioFile audioFile = AudioFileIO.read(file);
-				} catch (Exception e) {
-					continue;
-				}
-				retVal = true;
-			}
-		}
-		return retVal;
-	}
+
 	
 	
 //	private static void editAlbum(File files[]) throws TagException, InvalidAudioFrameException, ReadOnlyFileException, IOException, CannotWriteException {
@@ -146,99 +110,97 @@ public class Main {
 //	}
 	
 	
-	private static void editDirectory(File files[]) throws TagException, CannotWriteException {
-		
-		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
-		
-		AudioFile audioFile;
-		Tag tag;
-		
-		
-		// ArrayLists for initial tags and changed tags
-		ArrayList<String> initialTags = new ArrayList<>();
-		ArrayList<String> changedTags = new ArrayList<>();
-		
-		int tagIndex = -1;
-		
-		while (tagIndex < 0 || tagIndex > tags.size()) {
-			clearTerminal();
-			System.out.print("What tag you want to change?\n");
-			for (int i = 1; i <= tags.size(); i++) {
-				System.out.printf("%d - %s;\n",i, tags.get(i));
-			}
-			System.out.print("Tag: ");
-			
-			try {											// If tag index is not int then keep tagIndex = -1
-				tagIndex = terminalInput.nextInt();
-			} catch (InputMismatchException e) {
-				terminalInput.next();
-				tagIndex = -1;
-			}
-		}
-		
-		// The nextInt() method previously called doesn't read the following new-line character, so we need
-		// to call nextLine() to avoid reading "" in next call of nextLine()
-		terminalInput.nextLine();
-		
-		// Fill tags
-		for (File file : files) {
-			if (file.isFile()) {
-				try {									// If not audio file then continue
-					audioFile = AudioFileIO.read(file);
-				} catch (Exception e) {
-					continue;
-				}
-				tag = audioFile.getTag();
-
-				// Add unique tags to ArrayList of initial tags
-				if (!initialTags.contains(tag.getFirst(tags.get(tagIndex)))) {
-					initialTags.add(tag.getFirst(tags.get(tagIndex)));
-				}
-			}
-		}
-		
-		System.out.printf("Found %d unique tags of %s.\n", initialTags.size(), tags.get(tagIndex));
-		System.out.print("Type new value for old value. Type 0 if you don't want to replace this tag.\n");
-
-		// Change initial genres to another genres
-		for (String initialTag : initialTags) {
-			System.out.printf("[%d/%d] %s -> ",initialTags.indexOf(initialTag) + 1, initialTags.size(), initialTag);
-			String changedTag = terminalInput.nextLine();
-
-			if (changedTag.equals("0")) {		// If user don't want to change genre keep this genre
-				changedTags.add(initialTag);
-			} else {
-				changedTags.add(changedTag);
-			}
-		}
-		
-		System.out.print("Editing...\n");
-		for (File file : files) {
-			if (file.isFile()) {
-				try {									// If not audio file then continue
-					audioFile = AudioFileIO.read(file);
-				} catch (Exception e) {
-					continue;
-				}
-				tag = audioFile.getTag();
-
-				for (int i = 0; i < initialTags.size(); i++) {							// Go through tags
-					if (tag.getFirst(tags.get(tagIndex)).equals(initialTags.get(i))) {	// If tag of the audio file is equal to initial genre
-						tag.setField(tags.get(tagIndex), changedTags.get(i));			// Then change the genre of the audio file to the new genre
-						audioFile.commit();												// Apply change
-					}
-				}
-			}
-		}
-		
-		System.out.print("Done.\n");
-	}
+//	private static void editDirectory(File files[]) throws TagException, CannotWriteException {
+//
+//		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
+//
+//		AudioFile audioFile;
+//		Tag tag;
+//
+//
+//		// ArrayLists for initial tags and changed tags
+//		ArrayList<String> initialTags = new ArrayList<>();
+//		ArrayList<String> changedTags = new ArrayList<>();
+//
+//		int tagIndex = -1;
+//
+//		while (tagIndex < 0 || tagIndex > tags.size()) {
+//			clearTerminal();
+//			System.out.print("What tag you want to change?\n");
+//			for (int i = 1; i <= tags.size(); i++) {
+//				System.out.printf("%d - %s;\n",i, tags.get(i));
+//			}
+//			System.out.print("Tag: ");
+//
+//			try {											// If tag index is not int then keep tagIndex = -1
+//				tagIndex = terminalInput.nextInt();
+//			} catch (InputMismatchException e) {
+//				terminalInput.next();
+//				tagIndex = -1;
+//			}
+//		}
+//
+//		// The nextInt() method previously called doesn't read the following new-line character, so we need
+//		// to call nextLine() to avoid reading "" in next call of nextLine()
+//		terminalInput.nextLine();
+//
+//		// Fill tags
+//		for (File file : files) {
+//			if (file.isFile()) {
+//				try {									// If not audio file then continue
+//					audioFile = AudioFileIO.read(file);
+//				} catch (Exception e) {
+//					continue;
+//				}
+//				tag = audioFile.getTag();
+//
+//				// Add unique tags to ArrayList of initial tags
+//				if (!initialTags.contains(tag.getFirst(tags.get(tagIndex)))) {
+//					initialTags.add(tag.getFirst(tags.get(tagIndex)));
+//				}
+//			}
+//		}
+//
+//		System.out.printf("Found %d unique tags of %s.\n", initialTags.size(), tags.get(tagIndex));
+//		System.out.print("Type new value for old value. Type 0 if you don't want to replace this tag.\n");
+//
+//		// Change initial genres to another genres
+//		for (String initialTag : initialTags) {
+//			System.out.printf("[%d/%d] %s -> ",initialTags.indexOf(initialTag) + 1, initialTags.size(), initialTag);
+//			String changedTag = terminalInput.nextLine();
+//
+//			if (changedTag.equals("0")) {		// If user don't want to change genre keep this genre
+//				changedTags.add(initialTag);
+//			} else {
+//				changedTags.add(changedTag);
+//			}
+//		}
+//
+//		System.out.print("Editing...\n");
+//		for (File file : files) {
+//			if (file.isFile()) {
+//				try {									// If not audio file then continue
+//					audioFile = AudioFileIO.read(file);
+//				} catch (Exception e) {
+//					continue;
+//				}
+//				tag = audioFile.getTag();
+//
+//				for (int i = 0; i < initialTags.size(); i++) {							// Go through tags
+//					if (tag.getFirst(tags.get(tagIndex)).equals(initialTags.get(i))) {	// If tag of the audio file is equal to initial genre
+//						tag.setField(tags.get(tagIndex), changedTags.get(i));			// Then change the genre of the audio file to the new genre
+//						audioFile.commit();												// Apply change
+//					}
+//				}
+//			}
+//		}
+//
+//		System.out.print("Done.\n");
+//	}
 	
 
 	private static void removeMultiplyTags(File files[]) {
-
-		Scanner terminalInput = new Scanner(System.in);						// Input from terminal
-
+		
 		AudioFile audioFile;
 		Tag tag;
 
@@ -318,7 +280,8 @@ public class Main {
 			EditAlbumService editAlbumService = new EditAlbumService(files);
 			editAlbumService.editAlbum();
 		} else if (inputMode == 1) {
-			editDirectory(files);
+			EditDirectoryService editDirectoryService = new EditDirectoryService(files);
+			editDirectoryService.editDirectory();
 		} else if (inputMode == 2) {
 			removeMultiplyTags(files);
 		} else {										// Keep this if new mode will be added
