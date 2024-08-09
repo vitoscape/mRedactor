@@ -94,6 +94,22 @@ public class EditAudioService {
 				}
 				tag.setField(FieldKey.COMMENT, "");	// Remove comment
 				
+				// Edit title (remove track number from title)
+				String title = tag.getFirst(FieldKey.TITLE);
+				int firstSpaceIndex = title.indexOf(" ");
+				
+				if (firstSpaceIndex > 0) {
+					String subString = title.substring(0, firstSpaceIndex);
+					try {
+						if (Integer.parseInt(subString) == Integer.parseInt(tag.getFirst(FieldKey.TRACK))) {
+							tag.setField(FieldKey.TITLE, title.substring(firstSpaceIndex + 1));
+						}
+					} catch (NumberFormatException _) {
+					
+					}
+				}
+				
+				
 				audioFile.commit();	// Apply change
 				
 				
