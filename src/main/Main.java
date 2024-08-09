@@ -2,9 +2,7 @@ package main;
 
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.tag.TagException;
-import services.EditAlbumService;
-import services.EditDirectoryService;
-import services.RemoveMultiplyTagsService;
+import services.EditAudioService;
 
 import java.io.File;
 import java.util.InputMismatchException;
@@ -269,15 +267,14 @@ public class Main {
 			}
 		}
 		
+		EditAudioService editAudioService = new EditAudioService(files);
+		
 		if (inputMode == 0) {
-			EditAlbumService editAlbumService = new EditAlbumService(files);
-			editAlbumService.editAlbum();
+			editAudioService.editAlbum();
 		} else if (inputMode == 1) {
-			EditDirectoryService editDirectoryService = new EditDirectoryService(files);
-			editDirectoryService.editDirectory();
+			editAudioService.editDirectory();
 		} else if (inputMode == 2) {
-			RemoveMultiplyTagsService removeMultiplyTagsService = new RemoveMultiplyTagsService(files);
-			removeMultiplyTagsService.removeMultiplyTags();
+			editAudioService.removeMultiplyTags();
 		} else {														// Keep this if new mode will be added
 			System.out.print("Wrong mode code.\nProgram exit.\n");
 			exit(2);
