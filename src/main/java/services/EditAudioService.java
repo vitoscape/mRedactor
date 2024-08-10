@@ -15,10 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 import static utils.TerminalUtil.clearTerminal;
 
@@ -235,20 +232,21 @@ public class EditAudioService {
 			if (file.isFile()) {
 				try {													// If not audio file then continue
 					audioFile = AudioFileIO.read(file);
-					
 					tag = audioFile.getTag();
 					
-					for (FieldKey fieldKey : FieldKey.values()) {
-						if (tag.getFields(fieldKey).size() > 1) {
-							String singleTag = tag.getFirst(fieldKey);	// Read single tag
-							tag.deleteField(fieldKey);					// Delete tag
-							tag.setField(fieldKey, singleTag);			// Set single tag in that field
-							audioFile.commit();							// Apply change
+					System.out.print(tag.hasField(FieldKey.ALBUM_ARTIST));
+					
+					for (FieldKey fieldKey : tags.values()) {
+						if (!tag.getFields(fieldKey).isEmpty()) {
+							String singleTag = tag.getFirst(fieldKey);		// Read single tag
+							while (tag.getFields(fieldKey).isEmpty()) {
+								tag.deleteField(fieldKey);                  // Delete tag
+							}
+							tag.setField(fieldKey, singleTag);				// Set single tag in that field
+							audioFile.commit();								// Apply change
 						}
 					}
-				} catch (Exception e) {
-					continue;
-				}
+				} catch (Exception _) {}
 			}
 		}
 		
