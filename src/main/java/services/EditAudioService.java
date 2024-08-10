@@ -234,8 +234,6 @@ public class EditAudioService {
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
 					
-					System.out.print(tag.hasField(FieldKey.ALBUM_ARTIST));
-					
 					for (FieldKey fieldKey : tags.values()) {
 						if (!tag.getFields(fieldKey).isEmpty()) {
 							String singleTag = tag.getFirst(fieldKey);		// Read single tag
