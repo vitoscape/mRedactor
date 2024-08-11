@@ -61,7 +61,7 @@ public class EditAudioService {
 		System.out.print("Number of tracks: ");
 		String trackTotal = terminalInput.nextLine();
 		
-		String artistToRename = null;
+		String artistToRename;
 		
 		// Change tags
 		for (File file : files) {
