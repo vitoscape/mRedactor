@@ -10,6 +10,7 @@ import org.jaudiotagger.tag.FieldDataInvalidException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.flac.FlacTag;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class EditAudioService {
 	private final File files[];
 	
 	private AudioFile audioFile;
-	private Tag tag;
+	private Tag tag = new FlacTag();
 	
 	// Fill tags HashMap
 	static {
@@ -60,22 +61,24 @@ public class EditAudioService {
 		System.out.print("Number of tracks: ");
 		String trackTotal = terminalInput.nextLine();
 		
+		String artistToRename = null;
+		
 		// Change tags
 		for (File file : files) {
 			if (file.isFile()) {
 				try {
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
-				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException |
-						 InvalidAudioFrameException e) {
+				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
 					continue;						// If this file is not audio then continue the iteration
 				}
 				
 				if (!artist.equals("0")) {
 					tag.setField(FieldKey.ARTIST, artist);
-					tag.setField(FieldKey.ALBUM_ARTIST, artist);
+					//tag.setField(FieldKey.ALBUM_ARTIST, artist);	// Doesn't work. Just add one more same tag. ALBUM_ARTIST tag can not be cleared
+					artistToRename = artist;
 				} else {
-					artist = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
+					artistToRename = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
 				}
 				if (!album.equals("0")) {
 					tag.setField(FieldKey.ALBUM, album);
@@ -93,20 +96,18 @@ public class EditAudioService {
 				
 				// Edit title (remove track number from title)
 				String title = tag.getFirst(FieldKey.TITLE);
-				int firstSpaceIndex = title.indexOf(" ");
+				int firstSpaceIndex = title.indexOf(" ");		// Get index of first space to get first word of the title
 				
-				if (firstSpaceIndex > 0) {
-					String subString = title.substring(0, firstSpaceIndex);
+				if (firstSpaceIndex > 0) {																		// If more than 1 words in title
+					String subString = title.substring(0, firstSpaceIndex);										// Get first word from title
 					try {
-						if (Integer.parseInt(subString) == Integer.parseInt(tag.getFirst(FieldKey.TRACK))) {
-							tag.setField(FieldKey.TITLE, title.substring(firstSpaceIndex + 1));
+						if (Integer.parseInt(subString) == Integer.parseInt(tag.getFirst(FieldKey.TRACK))) {	// Compare first word as int and track number
+							tag.setField(FieldKey.TITLE, title.substring(firstSpaceIndex + 1));		// Set new title without track number
 						}
-					} catch (NumberFormatException _) {
-					
-					}
+					} catch (NumberFormatException _) {}
 				}
 				
-				
+				//audioFile.setTag(tag);
 				audioFile.commit();	// Apply change
 				
 				
@@ -115,7 +116,7 @@ public class EditAudioService {
 				int dotIndex = fileName.lastIndexOf('.');								// Get index of last  '.' char to get extension
 				String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);	// Get extension
 				Path dirPath = Paths.get(file.getPath()).getParent();
-				String newName = artist + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
+				String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
 				
 				// If new name contains forbidden characters for files then delete these characters
 				if (newName.matches(".*[<>\"/\\\\|?*:].*")) {
