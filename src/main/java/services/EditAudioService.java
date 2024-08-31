@@ -6,10 +6,7 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.FieldDataInvalidException;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.*;
 import org.jaudiotagger.tag.flac.FlacTag;
 
 import java.io.File;
@@ -73,12 +70,29 @@ public class EditAudioService {
 					continue;						// If this file is not audio then continue the iteration
 				}
 				
+				
+				//Get ALBUM_ARTIST field
+				Iterator<TagField> it = tag.getFields();
+				String albumArtist = null;
+				
+				while (it.hasNext()) {
+					TagField field = (TagField) it.next();
+					if (field.getId().equals("ALBUM ARTIST")) {
+						albumArtist = field.toString();
+					}
+				}
+				
+				
 				if (!artist.equals("0")) {
 					tag.setField(FieldKey.ARTIST, artist);
-					//tag.setField(FieldKey.ALBUM_ARTIST, artist);	// Doesn't work. Just add one more same tag. ALBUM_ARTIST tag can not be cleared
+					
+					if (albumArtist == null) {							// If ALBUM_ARTIST field is empty then set this field because setField()
+						tag.setField(FieldKey.ALBUM_ARTIST, artist);	// method does not overwrite the content of this field
+					}
+					
 					artistToRename = artist;
 				} else {
-					artistToRename = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
+					artistToRename = tag.getFirst(FieldKey.ARTIST);		// If changing tag value doesn't need then read tag value from file to rename file
 				}
 				if (!album.equals("0")) {
 					tag.setField(FieldKey.ALBUM, album);
@@ -107,7 +121,6 @@ public class EditAudioService {
 					} catch (NumberFormatException _) {}
 				}
 				
-				//audioFile.setTag(tag);
 				audioFile.commit();	// Apply change
 				
 				
@@ -134,7 +147,7 @@ public class EditAudioService {
 				String newPathName = dirPath + "\\" + newName;								// And finally create new full path name
 				
 				if (!file.renameTo(new File(newPathName))) {
-					System.out.printf("Error when renaming file: %s\n", fileName);
+					System.out.printf("Error while renaming file: %s\n", fileName);
 				}
 			}
 		}
