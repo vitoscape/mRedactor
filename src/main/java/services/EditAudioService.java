@@ -33,7 +33,6 @@ public class EditAudioService {
 		tags.put(1, FieldKey.GENRE);
 		tags.put(2, FieldKey.ARTIST);
 		tags.put(3, FieldKey.ALBUM);
-		tags.put(4, FieldKey.ALBUM_ARTIST);
 		tags.put(5, FieldKey.YEAR);
 	}
 	
@@ -247,6 +246,20 @@ public class EditAudioService {
 				try {													// If not audio file then continue
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
+					
+					//Get ALBUM_ARTIST field
+					Iterator<TagField> it = tag.getFields();
+					String albumArtist = null;
+					
+					while (it.hasNext()) {
+						TagField field = (TagField) it.next();
+						if (field.getId().equals("ALBUM ARTIST")) {
+							albumArtist = field.toString();
+						}
+					}
+					
+					// TODO: continue with albumArtist
+					
 					
 					for (FieldKey fieldKey : tags.values()) {
 						if (!tag.getFields(fieldKey).isEmpty()) {
