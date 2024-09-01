@@ -6,19 +6,14 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.FieldDataInvalidException;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.*;
+import org.jaudiotagger.tag.flac.FlacTag;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 import static utils.TerminalUtil.clearTerminal;
 
@@ -31,14 +26,13 @@ public class EditAudioService {
 	private final File files[];
 	
 	private AudioFile audioFile;
-	private Tag tag;
+	private Tag tag = new FlacTag();
 	
 	// Fill tags HashMap
 	static {
 		tags.put(1, FieldKey.GENRE);
 		tags.put(2, FieldKey.ARTIST);
 		tags.put(3, FieldKey.ALBUM);
-		tags.put(4, FieldKey.ALBUM_ARTIST);
 		tags.put(5, FieldKey.YEAR);
 	}
 	
@@ -63,22 +57,46 @@ public class EditAudioService {
 		System.out.print("Number of tracks: ");
 		String trackTotal = terminalInput.nextLine();
 		
+		String artistToRename;
+		
 		// Change tags
 		for (File file : files) {
 			if (file.isFile()) {
 				try {
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
-				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException |
-						 InvalidAudioFrameException e) {
+				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
 					continue;						// If this file is not audio then continue the iteration
 				}
 				
+				
+				//Get ALBUM_ARTIST field
+				Iterator<TagField> it = tag.getFields();
+				String albumArtist = null;
+				
+				while (it.hasNext()) {
+					TagField field = (TagField) it.next();
+					if (field.getId().equals("ALBUM ARTIST")) {
+						albumArtist = field.toString();
+					}
+				}
+				
+				
+				// Delete insignificant zeros in track number
+				int trackNumber = Integer.parseInt(tag.getFirst(FieldKey.TRACK));
+				tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
+				
+				
 				if (!artist.equals("0")) {
 					tag.setField(FieldKey.ARTIST, artist);
-					tag.setField(FieldKey.ALBUM_ARTIST, artist);
+					
+					if (albumArtist == null) {							// If ALBUM_ARTIST field is empty then set this field because setField()
+						tag.setField(FieldKey.ALBUM_ARTIST, artist);	// method does not overwrite the content of this field
+					}
+					
+					artistToRename = artist;
 				} else {
-					artist = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
+					artistToRename = tag.getFirst(FieldKey.ARTIST);		// If changing tag value doesn't need then read tag value from file to rename file
 				}
 				if (!album.equals("0")) {
 					tag.setField(FieldKey.ALBUM, album);
@@ -94,6 +112,21 @@ public class EditAudioService {
 				}
 				tag.setField(FieldKey.COMMENT, "");	// Remove comment
 				
+				// Edit title (remove track number from title)
+				String title = tag.getFirst(FieldKey.TITLE);
+				
+				int firstSpaceIndex = title.indexOf(" ");		// Get index of first space to get first word of the title
+				
+				if (firstSpaceIndex > 0) {																		// If more than 1 words in title
+					String subString = title.substring(0, firstSpaceIndex);										// Get first word from title
+					try {
+						if (Integer.parseInt(subString) == Integer.parseInt(tag.getFirst(FieldKey.TRACK))) {	// Compare first word as int and track number
+							tag.setField(FieldKey.TITLE, title.substring(firstSpaceIndex + 1));		// Set new title without track number
+						}
+					} catch (NumberFormatException _) {}
+				}
+				
+				
 				audioFile.commit();	// Apply change
 				
 				
@@ -102,7 +135,7 @@ public class EditAudioService {
 				int dotIndex = fileName.lastIndexOf('.');								// Get index of last  '.' char to get extension
 				String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);	// Get extension
 				Path dirPath = Paths.get(file.getPath()).getParent();
-				String newName = artist + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
+				String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
 				
 				// If new name contains forbidden characters for files then delete these characters
 				if (newName.matches(".*[<>\"/\\\\|?*:].*")) {
@@ -120,7 +153,7 @@ public class EditAudioService {
 				String newPathName = dirPath + "\\" + newName;								// And finally create new full path name
 				
 				if (!file.renameTo(new File(newPathName))) {
-					System.out.printf("Error when renaming file: %s\n", fileName);
+					System.out.printf("Error while renaming file: %s\n", fileName);
 				}
 			}
 		}
@@ -219,20 +252,33 @@ public class EditAudioService {
 			if (file.isFile()) {
 				try {													// If not audio file then continue
 					audioFile = AudioFileIO.read(file);
-					
 					tag = audioFile.getTag();
 					
-					for (FieldKey fieldKey : FieldKey.values()) {
-						if (tag.getFields(fieldKey).size() > 1) {
-							String singleTag = tag.getFirst(fieldKey);	// Read single tag
-							tag.deleteField(fieldKey);					// Delete tag
-							tag.setField(fieldKey, singleTag);			// Set single tag in that field
-							audioFile.commit();							// Apply change
+					//Get ALBUM_ARTIST field
+					Iterator<TagField> it = tag.getFields();
+					String albumArtist = null;
+					
+					while (it.hasNext()) {
+						TagField field = (TagField) it.next();
+						if (field.getId().equals("ALBUM ARTIST")) {
+							albumArtist = field.toString();
 						}
 					}
-				} catch (Exception e) {
-					continue;
-				}
+					
+					// TODO: continue with albumArtist
+					
+					
+					for (FieldKey fieldKey : tags.values()) {
+						if (!tag.getFields(fieldKey).isEmpty()) {
+							String singleTag = tag.getFirst(fieldKey);		// Read single tag
+							while (tag.getFields(fieldKey).isEmpty()) {
+								tag.deleteField(fieldKey);                  // Delete tag
+							}
+							tag.setField(fieldKey, singleTag);				// Set single tag in that field
+							audioFile.commit();								// Apply change
+						}
+					}
+				} catch (Exception _) {}
 			}
 		}
 		
