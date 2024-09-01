@@ -82,6 +82,11 @@ public class EditAudioService {
 				}
 				
 				
+				// Delete insignificant zeros in track number
+				int trackNumber = Integer.parseInt(tag.getFirst(FieldKey.TRACK));
+				tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
+				
+				
 				if (!artist.equals("0")) {
 					tag.setField(FieldKey.ARTIST, artist);
 					
@@ -109,6 +114,7 @@ public class EditAudioService {
 				
 				// Edit title (remove track number from title)
 				String title = tag.getFirst(FieldKey.TITLE);
+				
 				int firstSpaceIndex = title.indexOf(" ");		// Get index of first space to get first word of the title
 				
 				if (firstSpaceIndex > 0) {																		// If more than 1 words in title
@@ -119,6 +125,7 @@ public class EditAudioService {
 						}
 					} catch (NumberFormatException _) {}
 				}
+				
 				
 				audioFile.commit();	// Apply change
 				
