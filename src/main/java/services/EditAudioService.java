@@ -66,20 +66,14 @@ public class EditAudioService {
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
 				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
-					continue;						// If this file is not audio then continue the iteration
+					continue;	// If this file is not audio then continue the iteration
 				}
 				
 				
-				//Get ALBUM_ARTIST field
-				Iterator<TagField> it = tag.getFields();
-				String albumArtist = null;
-				
-				while (it.hasNext()) {
-					TagField field = (TagField) it.next();
-					if (field.getId().equals("ALBUM ARTIST")) {
-						albumArtist = field.toString();
-					}
-				}
+				// Delete ALBUM_ARTIST tags
+				tag.deleteField("ALBUMARTIST");		// Use these three ways to delete because this field may vary
+				tag.deleteField("ALBUM ARTIST");
+				tag.deleteField(FieldKey.ALBUM_ARTIST);
 				
 				
 				// Delete insignificant zeros in track number
@@ -89,14 +83,12 @@ public class EditAudioService {
 				
 				if (!artist.equals("0")) {
 					tag.setField(FieldKey.ARTIST, artist);
-					
-					if (albumArtist == null) {							// If ALBUM_ARTIST field is empty then set this field because setField()
-						tag.setField(FieldKey.ALBUM_ARTIST, artist);	// method does not overwrite the content of this field
-					}
+					tag.setField(FieldKey.ALBUM_ARTIST, artist);
 					
 					artistToRename = artist;
 				} else {
-					artistToRename = tag.getFirst(FieldKey.ARTIST);		// If changing tag value doesn't need then read tag value from file to rename file
+					artistToRename = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
+					tag.setField(FieldKey.ALBUM_ARTIST, artistToRename);
 				}
 				if (!album.equals("0")) {
 					tag.setField(FieldKey.ALBUM, album);
@@ -111,6 +103,7 @@ public class EditAudioService {
 					tag.setField(FieldKey.TRACK_TOTAL, trackTotal);
 				}
 				tag.setField(FieldKey.COMMENT, "");	// Remove comment
+				tag.deleteField("DESCRIPTION");
 				
 				// Edit title (remove track number from title)
 				String title = tag.getFirst(FieldKey.TITLE);
