@@ -33,7 +33,7 @@ public class EditAudioService {
 		tags.put(1, FieldKey.GENRE);
 		tags.put(2, FieldKey.ARTIST);
 		tags.put(3, FieldKey.ALBUM);
-		tags.put(5, FieldKey.YEAR);
+		tags.put(4, FieldKey.YEAR);
 	}
 	
 	
