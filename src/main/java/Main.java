@@ -1,5 +1,3 @@
-package main;
-
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.tag.TagException;
 import services.EditAudioService;
