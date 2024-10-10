@@ -68,6 +68,69 @@ public class EditAudioService {
 		return album;
 	}
 	
+	private String processTag(@NotNull Tag tag, @NotNull Album album) throws FieldDataInvalidException {
+		
+		String artistToRename;
+		
+		tag.deleteField("ALBUMARTIST");		// Use these three ways to delete fields because this field may vary
+		tag.deleteField("ALBUM ARTIST");
+		tag.deleteField(FieldKey.ALBUM_ARTIST);
+		
+		// Delete insignificant zeros in track number
+		int trackNumber = Integer.parseInt(tag.getFirst(FieldKey.TRACK));
+		tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
+		
+		if (!album.getArtist().equals("0")) {
+			
+			tag.setField(FieldKey.ARTIST, album.getArtist());
+			tag.setField(FieldKey.ALBUM_ARTIST, album.getArtist());
+			
+			artistToRename = album.getArtist();
+			
+		} else {
+			artistToRename = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
+			tag.setField(FieldKey.ALBUM_ARTIST, artistToRename);
+		}
+		
+		if (!album.getAlbum().equals("0")) {
+			tag.setField(FieldKey.ALBUM, album.getAlbum());
+		}
+		
+		if (!album.getGenre().equals("0")) {
+			tag.setField(FieldKey.GENRE, album.getGenre());
+		}
+		
+		if (!album.getYear().equals("0")) {
+			tag.setField(FieldKey.YEAR, album.getYear());
+		}
+		
+		if (!album.getTrackTotal().equals("0")) {
+			tag.setField(FieldKey.TRACK_TOTAL, album.getTrackTotal());
+		}
+		
+		tag.setField(FieldKey.COMMENT, "");	// Remove comment
+		tag.deleteField("DESCRIPTION");
+		tag.deleteField("NOTES");
+		tag.deleteField("LENGTH");
+		
+		return artistToRename;
+	}
+	
+	private void removeTrackNumberFromTitle(@NotNull Tag tag) {
+		
+		String title = tag.getFirst(FieldKey.TITLE);
+		
+		int firstSpaceIndex = title.indexOf(" ");		// Get index of first space to get first word of the title
+		
+		if (firstSpaceIndex > 0) {																		// If more than 1 words in title
+			String subString = title.substring(0, firstSpaceIndex);										// Get first word from title
+			try {
+				if (Integer.parseInt(subString) == Integer.parseInt(tag.getFirst(FieldKey.TRACK))) {	// Compare first word as int and track number
+					tag.setField(FieldKey.TITLE, title.substring(firstSpaceIndex + 1));		// Set new title without track number
+				}
+			} catch (NumberFormatException | FieldDataInvalidException _) {}
+		}
+	}
 	
 	@NotNull
 	private String makeNewPathName(@NotNull File file, String artistToRename) {
@@ -96,7 +159,6 @@ public class EditAudioService {
 		return dirPath + "\\" + newName;								// And finally create new full path name
 	}
 	
-	
 	private void renameFile(@NotNull File file, String artistToRename) {
 		
 		String fileName = file.getName();
@@ -112,8 +174,6 @@ public class EditAudioService {
 		
 		Album album = fillAlbum();
 		
-		String artistToRename;
-		
 		// Change tags
 		for (File file : files) {
 			if (file.isFile()) {
@@ -125,61 +185,9 @@ public class EditAudioService {
 					continue;
 				}
 				
-				tag.deleteField("ALBUMARTIST");		// Use these three ways to delete fields because this field may vary
-				tag.deleteField("ALBUM ARTIST");
-				tag.deleteField(FieldKey.ALBUM_ARTIST);
+				String artistToRename = processTag(tag, album);
 				
-				// Delete insignificant zeros in track number
-				int trackNumber = Integer.parseInt(tag.getFirst(FieldKey.TRACK));
-				tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
-				
-				if (!album.getArtist().equals("0")) {
-					
-					tag.setField(FieldKey.ARTIST, album.getArtist());
-					tag.setField(FieldKey.ALBUM_ARTIST, album.getArtist());
-					
-					artistToRename = album.getArtist();
-					
-				} else {
-					artistToRename = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
-					tag.setField(FieldKey.ALBUM_ARTIST, artistToRename);
-				}
-				
-				if (!album.getAlbum().equals("0")) {
-					tag.setField(FieldKey.ALBUM, album.getAlbum());
-				}
-				
-				if (!album.getGenre().equals("0")) {
-					tag.setField(FieldKey.GENRE, album.getGenre());
-				}
-				
-				if (!album.getYear().equals("0")) {
-					tag.setField(FieldKey.YEAR, album.getYear());
-				}
-				
-				if (!album.getTrackTotal().equals("0")) {
-					tag.setField(FieldKey.TRACK_TOTAL, album.getTrackTotal());
-				}
-				
-				tag.setField(FieldKey.COMMENT, "");	// Remove comment
-				tag.deleteField("DESCRIPTION");
-				tag.deleteField("NOTES");
-				
-				
-				// Edit title (remove track number from title)
-				String title = tag.getFirst(FieldKey.TITLE);
-				
-				int firstSpaceIndex = title.indexOf(" ");		// Get index of first space to get first word of the title
-				
-				if (firstSpaceIndex > 0) {																		// If more than 1 words in title
-					String subString = title.substring(0, firstSpaceIndex);										// Get first word from title
-					try {
-						if (Integer.parseInt(subString) == Integer.parseInt(tag.getFirst(FieldKey.TRACK))) {	// Compare first word as int and track number
-							tag.setField(FieldKey.TITLE, title.substring(firstSpaceIndex + 1));		// Set new title without track number
-						}
-					} catch (NumberFormatException _) {}
-				}
-				
+				removeTrackNumberFromTitle(tag);
 				
 				audioFile.commit();	// Apply change
 				
