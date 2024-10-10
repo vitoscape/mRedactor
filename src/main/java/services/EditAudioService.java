@@ -69,11 +69,14 @@ public class EditAudioService {
 	}
 	
 	
-	private @NotNull String makeNewPathName(@NotNull File file, String artistToRename) {
+	@NotNull
+	private String makeNewPathName(@NotNull File file, String artistToRename) {
 		
 		String fileName = file.getName();
+		
 		int dotIndex = fileName.lastIndexOf('.');								// Get index of last  '.' char to get extension
 		String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);	// Get extension
+		
 		Path dirPath = Paths.get(file.getPath()).getParent();
 		String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
 		
@@ -267,7 +270,7 @@ public class EditAudioService {
 			}
 		}
 		
-		System.out.print("Done.\n");
+		System.out.print("Done!\n");
 	}
 	
 	
