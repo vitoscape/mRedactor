@@ -1,5 +1,6 @@
 package services;
 
+import model.Album;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -8,6 +9,7 @@ import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.*;
 import org.jaudiotagger.tag.flac.FlacTag;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +23,7 @@ public class EditAudioService {
 	
 	private final Scanner terminalInput = new Scanner(System.in);
 	
-	private static final HashMap<Integer, FieldKey> tags = new HashMap<>();	// HashMap to store keys for editable tags
+	private static final HashMap<Integer, FieldKey> tags = new HashMap<>();
 	
 	private final File files[];
 	
@@ -42,31 +44,45 @@ public class EditAudioService {
 	}
 	
 	
-	public void editAlbum() throws FieldDataInvalidException, CannotWriteException {
+	@NotNull
+	private Album fillAlbum() {
 		
-		// Fill tags to change
+		Album album = new Album();
+		
 		System.out.print("Enter tags that you want to set up. Type 0 if you want to keep tag.\n");
 		System.out.print("Artist: ");
-		String artist = terminalInput.nextLine();
+		album.setArtist(terminalInput.nextLine());
+		
 		System.out.print("Album: ");
-		String album = terminalInput.nextLine();
+		album.setAlbum(terminalInput.nextLine());
+		
 		System.out.print("Genre: ");
-		String genre = terminalInput.nextLine();
+		album.setGenre(terminalInput.nextLine());
+		
 		System.out.print("Year: ");
-		String year = terminalInput.nextLine();
+		album.setYear(terminalInput.nextLine());
+		
 		System.out.print("Number of tracks: ");
-		String trackTotal = terminalInput.nextLine();
+		album.setTrackTotal(terminalInput.nextLine());
+		
+		return album;
+	}
+	
+	
+	public void editAlbum() throws FieldDataInvalidException, CannotWriteException {
+		
+		Album album = fillAlbum();
 		
 		String artistToRename;
 		
 		// Change tags
 		for (File file : files) {
 			if (file.isFile()) {
-				try {
+				try {	// Check if the file is audio else skip that file
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
 				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
-					continue;	// If this file is not audio then continue the iteration
+					continue;
 				}
 				
 				
@@ -81,11 +97,13 @@ public class EditAudioService {
 				tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
 				
 				
-				if (!artist.equals("0")) {
-					tag.setField(FieldKey.ARTIST, artist);
-					tag.setField(FieldKey.ALBUM_ARTIST, artist);
+				if (!album.getArtist().equals("0")) {
 					
-					artistToRename = artist;
+					tag.setField(FieldKey.ARTIST, album.getArtist());
+					tag.setField(FieldKey.ALBUM_ARTIST, album.getArtist());
+					
+					artistToRename = album.getArtist();
+					
 				} else {
 					artistToRename = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
 					tag.setField(FieldKey.ALBUM_ARTIST, artistToRename);
