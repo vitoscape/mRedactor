@@ -69,6 +69,42 @@ public class EditAudioService {
 	}
 	
 	
+	private @NotNull String makeNewPathName(@NotNull File file, String artistToRename) {
+		
+		String fileName = file.getName();
+		int dotIndex = fileName.lastIndexOf('.');								// Get index of last  '.' char to get extension
+		String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);	// Get extension
+		Path dirPath = Paths.get(file.getPath()).getParent();
+		String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
+		
+		// If new name contains forbidden characters for files then delete these characters
+		if (newName.matches(".*[<>\"/\\\\|?*:].*")) {
+			newName = newName.replace("<", "");
+			newName = newName.replace(">", "");
+			newName = newName.replace("\"", "");
+			newName = newName.replace("/", "");
+			newName = newName.replace("\\", "");
+			newName = newName.replace("|", "");
+			newName = newName.replace("?", "");
+			newName = newName.replace("*", "");
+			newName = newName.replace(":", "");
+		}
+		
+		return dirPath + "\\" + newName;								// And finally create new full path name
+	}
+	
+	
+	private void renameFile(@NotNull File file, String artistToRename) {
+		
+		String fileName = file.getName();
+		String newPathName = makeNewPathName(file, artistToRename);
+		
+		if (!file.renameTo(new File(newPathName))) {
+			System.out.printf("Error while renaming file: %s\n", fileName);
+		}
+	}
+	
+	
 	public void editAlbum() throws FieldDataInvalidException, CannotWriteException {
 		
 		Album album = fillAlbum();
@@ -78,6 +114,7 @@ public class EditAudioService {
 		// Change tags
 		for (File file : files) {
 			if (file.isFile()) {
+				
 				try {	// Check if the file is audio else skip that file
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
@@ -85,17 +122,13 @@ public class EditAudioService {
 					continue;
 				}
 				
-				
-				// Delete ALBUM_ARTIST tags
-				tag.deleteField("ALBUMARTIST");		// Use these three ways to delete because this field may vary
+				tag.deleteField("ALBUMARTIST");		// Use these three ways to delete fields because this field may vary
 				tag.deleteField("ALBUM ARTIST");
 				tag.deleteField(FieldKey.ALBUM_ARTIST);
-				
 				
 				// Delete insignificant zeros in track number
 				int trackNumber = Integer.parseInt(tag.getFirst(FieldKey.TRACK));
 				tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
-				
 				
 				if (!album.getArtist().equals("0")) {
 					
@@ -108,20 +141,27 @@ public class EditAudioService {
 					artistToRename = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
 					tag.setField(FieldKey.ALBUM_ARTIST, artistToRename);
 				}
-				if (!album.equals("0")) {
-					tag.setField(FieldKey.ALBUM, album);
+				
+				if (!album.getAlbum().equals("0")) {
+					tag.setField(FieldKey.ALBUM, album.getAlbum());
 				}
-				if (!genre.equals("0")) {
-					tag.setField(FieldKey.GENRE, genre);
+				
+				if (!album.getGenre().equals("0")) {
+					tag.setField(FieldKey.GENRE, album.getGenre());
 				}
-				if (!year.equals("0")) {
-					tag.setField(FieldKey.YEAR, year);
+				
+				if (!album.getYear().equals("0")) {
+					tag.setField(FieldKey.YEAR, album.getYear());
 				}
-				if (!trackTotal.equals("0")) {
-					tag.setField(FieldKey.TRACK_TOTAL, trackTotal);
+				
+				if (!album.getTrackTotal().equals("0")) {
+					tag.setField(FieldKey.TRACK_TOTAL, album.getTrackTotal());
 				}
+				
 				tag.setField(FieldKey.COMMENT, "");	// Remove comment
 				tag.deleteField("DESCRIPTION");
+				tag.deleteField("NOTES");
+				
 				
 				// Edit title (remove track number from title)
 				String title = tag.getFirst(FieldKey.TITLE);
@@ -140,32 +180,7 @@ public class EditAudioService {
 				
 				audioFile.commit();	// Apply change
 				
-				
-				// Rename file
-				String fileName = file.getName();
-				int dotIndex = fileName.lastIndexOf('.');								// Get index of last  '.' char to get extension
-				String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);	// Get extension
-				Path dirPath = Paths.get(file.getPath()).getParent();
-				String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
-				
-				// If new name contains forbidden characters for files then delete these characters
-				if (newName.matches(".*[<>\"/\\\\|?*:].*")) {
-					newName = newName.replace("<", "");
-					newName = newName.replace(">", "");
-					newName = newName.replace("\"", "");
-					newName = newName.replace("/", "");
-					newName = newName.replace("\\", "");
-					newName = newName.replace("|", "");
-					newName = newName.replace("?", "");
-					newName = newName.replace("*", "");
-					newName = newName.replace(":", "");
-				}
-				
-				String newPathName = dirPath + "\\" + newName;								// And finally create new full path name
-				
-				if (!file.renameTo(new File(newPathName))) {
-					System.out.printf("Error while renaming file: %s\n", fileName);
-				}
+				renameFile(file, artistToRename);
 			}
 		}
 		
