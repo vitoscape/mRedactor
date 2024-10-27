@@ -77,8 +77,13 @@ public class EditAudioService {
 		tag.deleteField(FieldKey.ALBUM_ARTIST);
 		
 		// Delete insignificant zeros in track number
-		int trackNumber = Integer.parseInt(tag.getFirst(FieldKey.TRACK));
-		tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
+		int trackNumber = 0;
+		
+		try {
+			trackNumber = Integer.parseInt(tag.getFirst(FieldKey.TRACK));
+			tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
+		} catch (NumberFormatException _) {}
+		
 		
 		if (!album.getArtist().equals("0")) {
 			
