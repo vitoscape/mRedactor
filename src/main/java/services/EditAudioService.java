@@ -44,9 +44,11 @@ public class EditAudioService {
 	}
 	
 	/**
-	 * Fills album tag values by terminal input: artist, album, genre, year and total track number.
+	 * Fills album tag field values by terminal input: artist, album, genre, year and total track number.
+	 * <p>
+	 * Every field can be set to {@code 0} if that field does not need changing.
 	 *
-	 * @return The filled with tags Album object.
+	 * @return The filled with tags {@code Album} object.
 	 */
 	@NotNull
 	private Album fillAlbum() {

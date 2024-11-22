@@ -1,5 +1,10 @@
 package model;
 
+/**
+ * Album class represents all tag fields which can be changed.
+ * <p>
+ * Every field can be set to {@code 0} if that field does not need changing.
+ */
 public class Album {
 	
 	private String artist;

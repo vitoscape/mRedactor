@@ -1,7 +1,13 @@
 package utils;
 
+/**
+ * Util class for work with terminal.
+ */
 public class TerminalUtil {
 	
+	/**
+	 * Clear terminal window.
+	 */
 	public static void clearTerminal() {
 		try {
 			final String os = System.getProperty("os.name");
