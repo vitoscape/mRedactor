@@ -43,7 +43,11 @@ public class EditAudioService {
 		this.files = files;
 	}
 	
-	
+	/**
+	 * Fills album tag values by terminal input: artist, album, genre, year and total track number.
+	 *
+	 * @return The filled with tags Album object.
+	 */
 	@NotNull
 	private Album fillAlbum() {
 		
@@ -68,6 +72,14 @@ public class EditAudioService {
 		return album;
 	}
 	
+	/**
+	 * Apply tag changes to audio file.
+	 *
+	 * @param tag audio file Tag object that will be changed
+	 * @param album album object with changed desired tag values
+	 * @return String that contains artist tag value that will be used to rename the file
+	 * @throws FieldDataInvalidException if TRACK field key that contains in the file has non-digit chars
+	 */
 	private String processTag(@NotNull Tag tag, @NotNull Album album) throws FieldDataInvalidException {
 		
 		String artistToRename;
@@ -121,7 +133,13 @@ public class EditAudioService {
 		return artistToRename;
 	}
 	
-	private void removeTrackNumberFromTitle(@NotNull Tag tag) {
+	/**
+	 * Remove track number from the title.
+	 * Some audiofile's tags contains track number in title field.
+	 *
+	 * @param tag The tag in the {@code TITLE} field of which the track number will be deleted.
+	 */
+	private void deleteTrackNumberFromTitle(@NotNull Tag tag) {
 		
 		String title = tag.getFirst(FieldKey.TITLE);
 		
@@ -137,6 +155,27 @@ public class EditAudioService {
 		}
 	}
 	
+	/**
+	 * Delete forbidden filename characters from {@code fileName}
+	 *
+	 * @param fileName The name of the file from which the forbidden characters will be deleted.
+	 */
+	private void deleteForbiddenCharacters(String fileName) {
+		
+		// If new name contains forbidden characters for files then delete these characters
+		if (fileName.matches(".*[<>\"/\\\\|?*:].*")) {
+			fileName = fileName.replace("<", "");
+			fileName = fileName.replace(">", "");
+			fileName = fileName.replace("\"", "");
+			fileName = fileName.replace("/", "");
+			fileName = fileName.replace("\\", "");
+			fileName = fileName.replace("|", "");
+			fileName = fileName.replace("?", "");
+			fileName = fileName.replace("*", "");
+			fileName = fileName.replace(":", "");
+		}
+	}
+	
 	@NotNull
 	private String makeNewPathName(@NotNull File file, String artistToRename) {
 		
@@ -146,20 +185,9 @@ public class EditAudioService {
 		String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);	// Get extension
 		
 		Path dirPath = Paths.get(file.getPath()).getParent();
-		String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create name of file
+		String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create new file name
 		
-		// If new name contains forbidden characters for files then delete these characters
-		if (newName.matches(".*[<>\"/\\\\|?*:].*")) {
-			newName = newName.replace("<", "");
-			newName = newName.replace(">", "");
-			newName = newName.replace("\"", "");
-			newName = newName.replace("/", "");
-			newName = newName.replace("\\", "");
-			newName = newName.replace("|", "");
-			newName = newName.replace("?", "");
-			newName = newName.replace("*", "");
-			newName = newName.replace(":", "");
-		}
+		
 		
 		return dirPath + "\\" + newName;								// And finally create new full path name
 	}
@@ -192,7 +220,7 @@ public class EditAudioService {
 				
 				String artistToRename = processTag(tag, album);
 				
-				removeTrackNumberFromTitle(tag);
+				deleteTrackNumberFromTitle(tag);
 				
 				audioFile.commit();	// Apply change
 				
