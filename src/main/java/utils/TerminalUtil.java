@@ -1,5 +1,8 @@
 package utils;
 
+import java.io.File;
+import java.util.Scanner;
+
 /**
  * Util class for work with terminal.
  */
@@ -21,5 +24,26 @@ public class TerminalUtil {
 		} catch (final Exception e) {
 			//  Handle any exceptions
 		}
+	}
+	
+	/**
+	 * Input directory path from terminal.
+	 *
+	 * @param terminalInput {@code Scanner} object to input path
+	 * @return array of {@code File}s from directory that has been input
+	 */
+	public static File[] inputDirectory(Scanner terminalInput) {
+		
+		String directoryPath = null;
+		File directory = null;
+		
+		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
+			clearTerminal();
+			System.out.print("Type path of directory with audio files: ");
+			directoryPath = terminalInput.nextLine();                    	// Input directory path
+			directory = new File(directoryPath);
+		}
+		
+		return directory.listFiles();
 	}
 }
