@@ -75,8 +75,8 @@ public class EditAudioService {
 	/**
 	 * Apply tag changes to audio file.
 	 *
-	 * @param tag audio file Tag object that will be changed
-	 * @param album album object with changed desired tag values
+	 * @param tag	audio file Tag object that will be changed
+	 * @param album	album object with changed desired tag values
 	 * @return String that contains artist tag value that will be used to rename the file
 	 * @throws FieldDataInvalidException if TRACK field key that contains in the file has non-digit chars
 	 */
@@ -137,7 +137,7 @@ public class EditAudioService {
 	 * Remove track number from the title.
 	 * Some audiofile's tags contains track number in title field.
 	 *
-	 * @param tag The tag in the {@code TITLE} field of which the track number will be deleted.
+	 * @param tag the tag in the {@code TITLE} field of which the track number will be deleted
 	 */
 	private void deleteTrackNumberFromTitle(@NotNull Tag tag) {
 		
@@ -158,7 +158,7 @@ public class EditAudioService {
 	/**
 	 * Delete forbidden filename characters from {@code fileName}
 	 *
-	 * @param fileName The name of the file from which the forbidden characters will be deleted.
+	 * @param fileName the name of the file from which the forbidden characters will be deleted
 	 */
 	private void deleteForbiddenCharacters(String fileName) {
 		
@@ -176,6 +176,13 @@ public class EditAudioService {
 		}
 	}
 	
+	/**
+	 * Create new full path name for audiofile. Required for renaming.
+	 *
+	 * @param file				the file that will be used to get filename
+	 * @param artistToRename	artist is used to create filename following template {@code Artist - Title.extension}
+	 * @return new full path name
+	 */
 	@NotNull
 	private String makeNewPathName(@NotNull File file, String artistToRename) {
 		
@@ -187,11 +194,16 @@ public class EditAudioService {
 		Path dirPath = Paths.get(file.getPath()).getParent();
 		String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create new file name
 		
-		
-		
 		return dirPath + "\\" + newName;								// And finally create new full path name
 	}
 	
+	/**
+	 * Rename the {@code file}.
+	 *
+	 * @param file				file that will be renamed
+	 * @param artistToRename	artist is used to create filename following template {@code Artist - Title.extension},
+	 *                          used in {@link #makeNewPathName(File file, String artistToRename)}  method
+	 */
 	private void renameFile(@NotNull File file, String artistToRename) {
 		
 		String fileName = file.getName();
