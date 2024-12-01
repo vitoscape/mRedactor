@@ -80,7 +80,7 @@ public class EditAudioService {
 	 * @param tag	audio file Tag object that will be changed
 	 * @param album	album object with changed desired tag values
 	 * @return String that contains artist tag value that will be used to rename the file
-	 * @throws FieldDataInvalidException if TRACK field key that contains in the file has non-digit chars
+	 * @throws FieldDataInvalidException if {@code TRACK} field key that contains in the file has non-digit chars
 	 */
 	private String processTag(@NotNull Tag tag, @NotNull Album album) throws FieldDataInvalidException {
 		
@@ -216,7 +216,12 @@ public class EditAudioService {
 		}
 	}
 	
-	
+	/**
+	 * Edit full album with set field values.
+	 *
+	 * @throws FieldDataInvalidException	if {@code TRACK} field key that contains in the file has non-digit chars
+	 * @throws CannotWriteException			if audiofile applying changes fails
+	 */
 	public void editAlbum() throws FieldDataInvalidException, CannotWriteException {
 		
 		Album album = fillAlbum();
@@ -245,7 +250,12 @@ public class EditAudioService {
 		System.out.print("Done!\n");
 	}
 	
-	
+	/**
+	 * Edit one tag field of audiofiles in the directory.
+	 *
+	 * @throws FieldDataInvalidException	if {@code TRACK} field key that contains in the file has non-digit chars
+	 * @throws CannotWriteException			if audiofile applying changes fails
+	 */
 	public void editDirectory() throws FieldDataInvalidException, CannotWriteException {
 		
 		// ArrayLists for initial tags and changed tags
@@ -328,7 +338,9 @@ public class EditAudioService {
 		System.out.print("Done!\n");
 	}
 	
-	
+	/**
+	 * Fix bug when tag field multiplies.
+	 */
 	public void removeMultiplyTags() {
 		
 		System.out.print("Removing multiplied tags separated by ';'...\n");
