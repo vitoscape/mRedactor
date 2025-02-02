@@ -9,6 +9,7 @@ import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.*;
 import org.jaudiotagger.tag.flac.FlacTag;
+import org.jaudiotagger.tag.images.Artwork;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static utils.TerminalUtil.clearTerminal;
+import static utils.ImageUtil.*;
 
 public class EditAudioService {
 	
@@ -225,6 +227,11 @@ public class EditAudioService {
 	public void editAlbum() throws FieldDataInvalidException, CannotWriteException {
 		
 		Album album = fillAlbum();
+		Artwork albumCover = null;
+		
+		try {
+			albumCover = findAndCreateArtworkFromFiles(files);
+		} catch (IOException _) {}
 		
 		// Change tags
 		for (File file : files) {
@@ -240,6 +247,10 @@ public class EditAudioService {
 				String artistToRename = processTag(tag, album);
 				
 				deleteTrackNumberFromTitle(tag);
+				
+				if (albumCover != null) {
+					tag.setField(albumCover);
+				}
 				
 				audioFile.commit();	// Apply change
 				
