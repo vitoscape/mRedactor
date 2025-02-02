@@ -5,7 +5,7 @@ Audio file (mp3, flac (tested) and other) tag redactor.
 Based on [jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger/)
 by [IJabz](https://bitbucket.org/ijabz/).
 
-# Version 0.2.3 (terminal work)
+# Version 0.3.0 (terminal work)
 This version can only change the genres of audio files.
 Suitable for changing tags for a large number of audio files with the same tag values.
 **Before use this test version make backup of your files.**
@@ -32,6 +32,7 @@ You need to type values for tags:
 5. Number of tracks
 
 Every audio file will be processed. Tag "Album artist" will be set the same as "Artist". Comments of the files will be cleared.
+If the directory contains JPG/JPEG or PNG image it will be used as album cover to attach it to every audio file in the directory.
 
 ## Mode 1: edit various audio files (DOESN'T WORK WELL ON LARGE AMOUNT OF FILES (TRIED ON ABOUT 3500))
 You need to type the path of the directory with audio files. Then you need to select tag to change:
