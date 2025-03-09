@@ -18,17 +18,19 @@ public class AudioUtil {
 	 * 			{@code false} if directory does not contain audiofiles.
 	 */
 	public static boolean isContainAudioFiles(File files[]) {
-		boolean retVal = false;
+		
+		boolean returnValue = false;
+		
 		for (File file : files) {
 			if (file.isFile()) {
-				try {											// If not a single file is audio then retVal still false
+				try {
 					AudioFileIO.read(file);
 				} catch (Exception e) {
 					continue;
 				}
-				retVal = true;
+				returnValue = true;
 			}
 		}
-		return retVal;
+		return returnValue;
 	}
 }

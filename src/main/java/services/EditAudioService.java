@@ -32,7 +32,6 @@ public class EditAudioService {
 	private AudioFile audioFile;
 	private Tag tag = new FlacTag();
 	
-	// Fill tags HashMap
 	static {
 		tags.put(1, FieldKey.GENRE);
 		tags.put(2, FieldKey.ARTIST);
@@ -46,8 +45,7 @@ public class EditAudioService {
 	}
 	
 	/**
-	 * Fills album tag field values by terminal input: artist, album, genre, year and total track number.
-	 * <p>
+	 * Fills album tag field values by terminal input: artist, album, genre, year and total track number.<p>
 	 * Every field can be set to {@code 0} if that field does not need changing.
 	 *
 	 * @return The filled with tags {@code Album} object.
@@ -88,13 +86,13 @@ public class EditAudioService {
 		
 		String artistToRename;
 		
-		tag.deleteField("ALBUMARTIST");		// Use these three ways to delete fields because this field may vary
+		// Use these three ways to delete fields because this field may vary
+		tag.deleteField("ALBUMARTIST");
 		tag.deleteField("ALBUM ARTIST");
 		tag.deleteField(FieldKey.ALBUM_ARTIST);
 		
-		// Delete insignificant zeros in track number
-		int trackNumber = 0;
 		
+		int trackNumber = 0;
 		try {
 			trackNumber = Integer.parseInt(tag.getFirst(FieldKey.TRACK));
 			tag.setField(FieldKey.TRACK, String.valueOf(trackNumber));
@@ -109,7 +107,7 @@ public class EditAudioService {
 			artistToRename = album.getArtist();
 			
 		} else {
-			artistToRename = tag.getFirst(FieldKey.ARTIST);			// If changing tag value doesn't need then read tag value from file to rename file
+			artistToRename = tag.getFirst(FieldKey.ARTIST);
 			tag.setField(FieldKey.ALBUM_ARTIST, artistToRename);
 		}
 		
@@ -129,7 +127,7 @@ public class EditAudioService {
 			tag.setField(FieldKey.TRACK_TOTAL, album.getTrackTotal());
 		}
 		
-		tag.setField(FieldKey.COMMENT, "");	// Remove comment
+		tag.setField(FieldKey.COMMENT, "");
 		tag.deleteField("DESCRIPTION");
 		tag.deleteField("NOTES");
 		tag.deleteField("LENGTH");
@@ -147,13 +145,13 @@ public class EditAudioService {
 		
 		String title = tag.getFirst(FieldKey.TITLE);
 		
-		int firstSpaceIndex = title.indexOf(" ");		// Get index of first space to get first word of the title
+		int firstSpaceIndex = title.indexOf(" ");
 		
-		if (firstSpaceIndex > 0) {																		// If more than 1 words in title
-			String subString = title.substring(0, firstSpaceIndex);										// Get first word from title
+		if (firstSpaceIndex > 0) {
+			String subString = title.substring(0, firstSpaceIndex);
 			try {
-				if (Integer.parseInt(subString) == Integer.parseInt(tag.getFirst(FieldKey.TRACK))) {	// Compare first word as int and track number
-					tag.setField(FieldKey.TITLE, title.substring(firstSpaceIndex + 1));		// Set new title without track number
+				if (Integer.parseInt(subString) == Integer.parseInt(tag.getFirst(FieldKey.TRACK))) {
+					tag.setField(FieldKey.TITLE, title.substring(firstSpaceIndex + 1));
 				}
 			} catch (NumberFormatException | FieldDataInvalidException _) {}
 		}
@@ -166,7 +164,6 @@ public class EditAudioService {
 	 */
 	private void deleteForbiddenCharacters(String fileName) {
 		
-		// If new name contains forbidden characters for files then delete these characters
 		if (fileName.matches(".*[<>\"/\\\\|?*:].*")) {
 			fileName = fileName.replace("<", "");
 			fileName = fileName.replace(">", "");
@@ -192,13 +189,13 @@ public class EditAudioService {
 		
 		String fileName = file.getName();
 		
-		int dotIndex = fileName.lastIndexOf('.');								// Get index of last  '.' char to get extension
-		String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);	// Get extension
+		int dotIndex = fileName.lastIndexOf('.');
+		String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);
 		
 		Path dirPath = Paths.get(file.getPath()).getParent();
-		String newName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;	// Create new file name
+		String newPathName = artistToRename + " - " + tag.getFirst(FieldKey.TITLE) + extension;
 		
-		return dirPath + "\\" + newName;								// And finally create new full path name
+		return dirPath + "\\" + newPathName;
 	}
 	
 	/**
@@ -233,11 +230,10 @@ public class EditAudioService {
 			albumCover = findAndCreateArtworkFromFiles(files);
 		} catch (IOException _) {}
 		
-		// Change tags
 		for (File file : files) {
 			if (file.isFile()) {
 				
-				try {	// Check if the file is audio else skip that file
+				try {
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
 				} catch (CannotReadException | IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
@@ -252,7 +248,7 @@ public class EditAudioService {
 					tag.setField(albumCover);
 				}
 				
-				audioFile.commit();	// Apply change
+				audioFile.commit();
 				
 				renameFile(file, artistToRename);
 			}
@@ -269,7 +265,6 @@ public class EditAudioService {
 	 */
 	public void editDirectory() throws FieldDataInvalidException, CannotWriteException {
 		
-		// ArrayLists for initial tags and changed tags
 		ArrayList<String> initialTags = new ArrayList<>();
 		ArrayList<String> changedTags = new ArrayList<>();
 		
@@ -283,7 +278,7 @@ public class EditAudioService {
 			}
 			System.out.print("Tag: ");
 			
-			try {											// If tag index is not int then keep tagIndex = -1
+			try {
 				tagIndex = terminalInput.nextInt();
 			} catch (InputMismatchException e) {
 				terminalInput.next();
@@ -298,14 +293,13 @@ public class EditAudioService {
 		// Fill tags
 		for (File file : files) {
 			if (file.isFile()) {
-				try {									// If not audio file then continue
+				try {
 					audioFile = AudioFileIO.read(file);
 				} catch (Exception e) {
 					continue;
 				}
 				tag = audioFile.getTag();
 				
-				// Add unique tags to ArrayList of initial tags
 				if (!initialTags.contains(tag.getFirst(tags.get(tagIndex)))) {
 					initialTags.add(tag.getFirst(tags.get(tagIndex)));
 				}
@@ -315,12 +309,11 @@ public class EditAudioService {
 		System.out.printf("Found %d unique tags of %s.\n", initialTags.size(), tags.get(tagIndex));
 		System.out.print("Type new value for old value. Type 0 if you don't want to replace this tag.\n");
 		
-		// Change initial genres to another genres
 		for (String initialTag : initialTags) {
 			System.out.printf("[%d/%d] %s -> ",initialTags.indexOf(initialTag) + 1, initialTags.size(), initialTag);
 			String changedTag = terminalInput.nextLine();
 			
-			if (changedTag.equals("0")) {		// If user don't want to change genre keep this genre
+			if (changedTag.equals("0")) {
 				changedTags.add(initialTag);
 			} else {
 				changedTags.add(changedTag);
@@ -330,17 +323,17 @@ public class EditAudioService {
 		System.out.print("Editing...\n");
 		for (File file : files) {
 			if (file.isFile()) {
-				try {									// If not audio file then continue
+				try {
 					audioFile = AudioFileIO.read(file);
 				} catch (Exception e) {
 					continue;
 				}
 				tag = audioFile.getTag();
 				
-				for (int i = 0; i < initialTags.size(); i++) {							// Go through tags
-					if (tag.getFirst(tags.get(tagIndex)).equals(initialTags.get(i))) {	// If tag of the audio file is equal to initial genre
-						tag.setField(tags.get(tagIndex), changedTags.get(i));			// Then change the genre of the audio file to the new genre
-						audioFile.commit();												// Apply change
+				for (int i = 0; i < initialTags.size(); i++) {
+					if (tag.getFirst(tags.get(tagIndex)).equals(initialTags.get(i))) {
+						tag.setField(tags.get(tagIndex), changedTags.get(i));
+						audioFile.commit();
 					}
 				}
 			}
@@ -349,19 +342,17 @@ public class EditAudioService {
 		System.out.print("Done!\n");
 	}
 	
-	/**
-	 * Fix bug when tag field multiplies.
-	 */
+	/** Fix bug when tag field multiplies. */
 	public void removeMultiplyTags() {
 		
 		System.out.print("Removing multiplied tags separated by ';'...\n");
 		for (File file : files) {
 			if (file.isFile()) {
-				try {													// If not audio file then continue
+				
+				try {
 					audioFile = AudioFileIO.read(file);
 					tag = audioFile.getTag();
 					
-					//Get ALBUM_ARTIST field
 					Iterator<TagField> it = tag.getFields();
 					String albumArtist = null;
 					
@@ -377,12 +368,12 @@ public class EditAudioService {
 					
 					for (FieldKey fieldKey : tags.values()) {
 						if (!tag.getFields(fieldKey).isEmpty()) {
-							String singleTag = tag.getFirst(fieldKey);		// Read single tag
+							String singleTag = tag.getFirst(fieldKey);
 							while (tag.getFields(fieldKey).isEmpty()) {
-								tag.deleteField(fieldKey);                  // Delete tag
+								tag.deleteField(fieldKey);
 							}
-							tag.setField(fieldKey, singleTag);				// Set single tag in that field
-							audioFile.commit();								// Apply change
+							tag.setField(fieldKey, singleTag);
+							audioFile.commit();
 						}
 					}
 				} catch (Exception _) {}

@@ -16,21 +16,18 @@ public class Main {
 	
 	public static void main(String args[]) throws TagException, CannotWriteException {
 		
-		Scanner terminalInput = new Scanner(System.in);	// Input from terminal
+		Scanner terminalInput = new Scanner(System.in);
 		
-		LogManager.getLogManager().reset();				// Disable log
+		LogManager.getLogManager().reset();
 		
-		// Input directory path
 		File files[] = inputDirectory(terminalInput);
 		
-		// Check if the directory contains audio files
 		System.out.print("Checking files in directory...\n");
 		if (!isContainAudioFiles(files)) {
 			System.out.print("Directory does not contain audio files.\n");
 			return;
 		}
 		
-		// Select redacting mode
 		int inputMode = -1;
 		
 		while (inputMode < 0 || inputMode > 2) {
@@ -40,8 +37,8 @@ public class Main {
 			System.out.print("0 - edit album;\n1 - edit various audio files in directory;\n");
 			System.out.print("2 - remove multiplied tags separated by ';'.\nMode: ");
 			try {
-				inputMode = terminalInput.nextInt();	// Input mode
-			} catch (InputMismatchException e) {		// If mode is not int then keep inputMode = -1
+				inputMode = terminalInput.nextInt();
+			} catch (InputMismatchException e) {
 				terminalInput.next();
 				inputMode = -1;
 			}
@@ -55,7 +52,7 @@ public class Main {
 			editAudioService.editDirectory();
 		} else if (inputMode == 2) {
 			editAudioService.removeMultiplyTags();
-		} else {														// Keep this if new mode will be added
+		} else {
 			System.out.print("Wrong mode code.\nProgram exit.\n");
 			exit(2);
 		}

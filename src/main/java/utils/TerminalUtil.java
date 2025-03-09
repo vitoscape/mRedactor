@@ -3,14 +3,10 @@ package utils;
 import java.io.File;
 import java.util.Scanner;
 
-/**
- * Util class for work with terminal.
- */
+/** Util class for work with terminal. */
 public class TerminalUtil {
 	
-	/**
-	 * Clear terminal window.
-	 */
+	/** Clear terminal window. */
 	public static void clearTerminal() {
 		try {
 			final String os = System.getProperty("os.name");
@@ -21,9 +17,7 @@ public class TerminalUtil {
 				System.out.print("\033[H\033[2J");	// ESC-sequence to clear terminal window
 				System.out.flush();
 			}
-		} catch (final Exception e) {
-			//  Handle any exceptions
-		}
+		} catch (final Exception _) {}
 	}
 	
 	/**
@@ -40,7 +34,7 @@ public class TerminalUtil {
 		while (directoryPath == null || directoryPath.isEmpty() || !directory.isDirectory()) {
 			clearTerminal();
 			System.out.print("Type path of directory with audio files: ");
-			directoryPath = terminalInput.nextLine();                    	// Input directory path
+			directoryPath = terminalInput.nextLine();
 			directory = new File(directoryPath);
 		}
 		
