@@ -8,7 +8,7 @@ import java.util.Scanner;
 import java.util.logging.LogManager;
 
 import static java.lang.System.exit;
-import static utils.AudioUtil.isContainAudioFiles;
+import static utils.AudioUtil.isContainingAudioFiles;
 import static utils.TerminalUtil.clearTerminal;
 import static utils.TerminalUtil.inputDirectory;
 
@@ -23,7 +23,7 @@ public class Main {
 		File files[] = inputDirectory(terminalInput);
 		
 		System.out.print("Checking files in directory...\n");
-		if (!isContainAudioFiles(files)) {
+		if (!isContainingAudioFiles(files)) {
 			System.out.print("Directory does not contain audio files.\n");
 			return;
 		}

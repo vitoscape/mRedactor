@@ -47,9 +47,7 @@ public class ImageUtil {
 					if (isImage(file)) {
 						return ArtworkFactory.createArtworkFromFile(file);
 					}
-				} catch (IOException e) {
-					continue;
-				}
+				} catch (IOException _) {}
 			}
 		}
 		
